@@ -1,0 +1,264 @@
+{% extends base %} 
+{% block inner_head %} 
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" media="print" href="css/printstyles_rotated.css">
+<link rel="stylesheet" media="screen" href="css/screenstyles.css">
+{{ super() }}
+{% endblock inner_head %}
+{% block contents %}
+<div class="reportpage-rotated">
+    <div class="label-data-source-hidden">{{ embed(roots.label_data_source) }}</div>
+    <div class="banner-row">
+        <div class="banner-column-row">
+            <div class="report-title-1">Specialty Clinics</div>
+            <div class="report-title-2">REFERRALS</div>
+            <div class="banner-text">Report of the referral conversion process in the</div>
+            <div class="slicer-embed-block" id="clinic_slicer">{{ embed(roots.clinic_slicer) }}</div>
+            <div class="report-month">clinic for&nbsp;&nbsp;<B>{{ report_month }}</B></div>
+        </div>
+        <div class="report-description">
+            Measures of conversion throughput for referrals sent to specialty clinics and aged to the date seen or to today's date
+        </div>
+    </div>
+    <div class="panel-row">
+        <div class="column-row">
+            <div class="panel-card-55pct">
+                <div class="column-row">
+                    <div class="card-data-column-2">Urgent Referrals After 5d</div>
+                    <div class="card-data-column-2-right">
+                        <div class="column-row-right">
+                            <div class="card-annotation-top-right" id="urgent_max_date_plot">&nbsp;[*label*]&nbsp;&nbsp;</div>
+                            <div class="card-annotation-top-right">-</div>
+                            <div class="card-annotation-top-right" id="urgent_min_date_plot">&nbsp;[*label*]&nbsp;&nbsp;</div>
+                            <div class="card-annotation-top-right">Referrals sent</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column-row">
+                    <div class="card-data-column-2">
+                        <div class="annotation-header">Referrals Sent</div>
+                        <div>{{ embed(roots.urgent_volume_bar_chart) }}</div>
+                    </div>
+                    <div class="card-data-column-2">
+                        <div class="annotation-header">Percent Seen</div>
+                        <div>{{ embed(roots.urgent_seen_donut_chart) }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-card-45pct">
+                <div>Urgent Referrals Seen in 5d</div>
+                <div class="column-row">
+                    <div class="card-data-column-28pct">
+                        <div class="gauge-target-annotation" id="urgent_ratio_target_plot">Target [*label*]</div>
+                        <div>{{ embed(roots.urgent_aim_gauge) }}</div>
+                        <div class="annotation-footer">28 Day Rate</div>
+                    </div>
+                    <div class="card-data-column-36pct">
+                        <div class="annotation-header">Moving Rates</div>
+                        <table class="card-table" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                                <td class="center-annotation"><span class="[*class*]" id="urgent_improvement_dir_3_month_plot">[*label*]</span></td>
+                                <td class="left-side-annotation"><nobr>vs. 91 Day</nobr></td>
+                                <td class="annotation-data-point" id="urgent_ratio_3_month_plot">[*label*]</td>
+                            </tr>
+                            <tr>
+                                <td class="center-annotation"><span class="[*class*]" id="urgent_improvement_dir_6_month_plot">[*label*]</span></td>
+                                <td class="left-side-annotation"><nobr>vs. 182 Day</nobr></td>
+                                <td class="annotation-data-point" id="urgent_ratio_6_month_plot">[*label*]</td>
+                            </tr>
+                            <tr>
+                                <td class="center-annotation"><span class="[*class*]" id="urgent_improvement_dir_12_month_plot">[*label*]</span></td>
+                                <td class="left-side-annotation"><nobr>vs. 364 Day</nobr></td>
+                                <td class="annotation-data-point" id="urgent_ratio_12_month_plot">[*label*]</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="card-data-column-36pct">
+                        <div class="annotation-header">Moving Over/Under Target</div>
+                        <table class="card-table" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                                <td class="left-side-annotation"><nobr>91 Days</nobr></td>
+                                <td class="center-annotation"><span class="[*class*]" id="urgent_direction_3_month_plot">[*label*]</span></td>
+                                <td class="annotation-data-point-center" id="urgent_variance_3_month_plot">[*label*]</td>
+                            </tr>
+                            <tr>
+                                <td class="left-side-annotation"><nobr>182 Days</nobr></td>
+                                <td class="center-annotation"><span class="[*class*]" id="urgent_direction_6_month_plot">[*label*]</span></td>
+                                <td class="annotation-data-point-center" id="urgent_variance_6_month_plot">[*label*]</td>
+                            </tr>
+                            <tr>
+                                <td class="left-side-annotation"><nobr>364 Days</nobr></td>
+                                <td class="center-annotation"><span class="[*class*]" id="urgent_direction_12_month_plot">[*label*]</span></td>
+                                <td class="annotation-data-point-center" id="urgent_variance_12_month_plot">[*label*]</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-row">
+        <div class="column-row">
+            <div class="panel-card-55pct">
+                <div class="column-row">
+                    <div class="card-data-column-2">Routine Referrals After 30d</div>
+                    <div class="card-data-column-2-right">
+                        <div class="column-row-right">
+                            <div class="card-annotation-top-right" id="routine_max_date_plot">&nbsp;[*label*]&nbsp;&nbsp;</div>
+                            <div class="card-annotation-top-right">-</div>
+                            <div class="card-annotation-top-right" id="routine_min_date_plot">&nbsp;[*label*]&nbsp;&nbsp;</div>
+                            <div class="card-annotation-top-right">Referrals sent</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column-row">
+                    <div class="card-data-column-2">
+                        <div class="annotation-header">Referrals Sent</div>
+                        <div>{{ embed(roots.routine_volume_bar_chart) }}</div>
+                    </div>
+                    <div class="card-data-column-2">
+                        <div class="annotation-header">Percent Seen</div>
+                        <div>{{ embed(roots.routine_seen_donut_chart) }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-card-45pct">
+                <div>Routine Referrals Seen in 30d</div>
+                <div class="column-row">
+                    <div class="card-data-column-28pct">
+                        <div class="gauge-target-annotation" id="routine_ratio_target_plot">Target [*label*]</div>
+                        <div>{{ embed(roots.routine_aim_gauge) }}</div>
+                        <div class="annotation-footer">28 Day Rate</div>
+                    </div>
+                    <div class="card-data-column-36pct">
+                        <div class="annotation-header">Moving Rates</div>
+                        <table class="card-table" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                                <td class="center-annotation"><span class="[*class*]" id="routine_improvement_dir_3_month_plot">[*label*]</span></td>
+                                <td class="left-side-annotation"><nobr>vs. 91 Day</nobr></td>
+                                <td class="annotation-data-point" id="routine_ratio_3_month_plot">[*label*]</td>
+                            </tr>
+                            <tr>
+                                <td class="center-annotation"><span class="[*class*]" id="routine_improvement_dir_6_month_plot">[*label*]</span></td>
+                                <td class="left-side-annotation"><nobr>vs. 182 Day</nobr></td>
+                                <td class="annotation-data-point" id="routine_ratio_6_month_plot">[*label*]</td>
+                            </tr>
+                            <tr>
+                                <td class="center-annotation"><span class="[*class*]" id="routine_improvement_dir_12_month_plot">[*label*]</span></td>
+                                <td class="left-side-annotation"><nobr>vs. 364 Day</nobr></td>
+                                <td class="annotation-data-point" id="routine_ratio_12_month_plot">[*label*]</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="card-data-column-36pct">
+                        <div class="annotation-header">Moving Over/Under Target</div>
+                        <table class="card-table" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                                <td class="left-side-annotation"><nobr>91 Days</nobr></td>
+                                <td class="center-annotation"><span class="[*class*]" id="routine_direction_3_month_plot">[*label*]</span></td>
+                                <td class="annotation-data-point-center" id="routine_variance_3_month_plot">[*label*]</td>
+                            </tr>
+                            <tr>
+                                <td class="left-side-annotation"><nobr>182 Days</nobr></td>
+                                <td class="center-annotation"><span class="[*class*]" id="routine_direction_6_month_plot">[*label*]</span></td>
+                                <td class="annotation-data-point-center" id="routine_variance_6_month_plot">[*label*]</td>
+                            </tr>
+                            <tr>
+                                <td class="left-side-annotation"><nobr>364 Days</nobr></td>
+                                <td class="center-annotation"><span class="[*class*]" id="routine_direction_12_month_plot">[*label*]</span></td>
+                                <td class="annotation-data-point-center" id="routine_variance_12_month_plot">[*label*]</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-row">
+        <div class="column-row">
+            <div class="panel-card-55pct">
+                <div class="column-row">
+                    <div class="card-data-column-2">Referrals After 90d</div>
+                    <div class="card-data-column-2-right">
+                        <div class="column-row-right">
+                            <div class="card-annotation-top-right" id="all_max_date_plot">&nbsp;[*label*]&nbsp;&nbsp;</div>
+                            <div class="card-annotation-top-right">-</div>
+                            <div class="card-annotation-top-right" id="all_min_date_plot">&nbsp;[*label*]&nbsp;&nbsp;</div>
+                            <div class="card-annotation-top-right">Referrals sent</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column-row">
+                    <div class="card-data-column-2">
+                        <div class="annotation-header">Referrals Sent</div>
+                        <div>{{ embed(roots.volume_bar_chart) }}</div>
+                    </div>
+                    <div class="card-data-column-2">
+                        <div class="annotation-header">Percent Seen</div>
+                        <div>{{ embed(roots.seen_donut_chart) }}</div>
+                    </div>
+                </div>
+
+                <div class="column-row">
+                    <div class="card-data-column-2">
+                        <div class="annotation-header">Process Milestones</div>
+                        <div>{{ embed(roots.process_volume_bar_chart) }}</div>
+                    </div>
+                    <div class="card-data-column-2">
+                        <div class="column-row">
+                            <div class="card-data-column-45pct">
+                                <div class="annotation-header">Process Rates</div>
+                                <table class="card-table" cellspacing="0" cellpadding="0" border="0">
+                                    <tr>
+                                        <td class="right-side-annotation-sm">Accepted</td>
+                                        <td><div class="annotation-data-point-sm" id="all_accepted_rate_plot">[*label*]</div></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="right-side-annotation-sm">Scheduled</td>
+                                        <td><div class="annotation-data-point-sm" id="all_scheduled_rate_plot">[*label*]</div></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="right-side-annotation-sm">Completed</td>
+                                        <td><div class="annotation-data-point-sm" id="all_completed_rate_plot">[*label*]</div></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="card-data-column-55pct">
+                                <div class="annotation-header">28 Day Median Times</div>
+                                <table class="card-table" cellspacing="0" cellpadding="0" border="0">
+                                    <tr>
+                                        <td class="annotation-data-point-sm-center" id="median_days_to_accepted_plot">[*label*]</td>
+                                        <td class="left-side-annotation-sm"><nobr>Days to Accept</nobr></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="annotation-data-point-sm-center" id="median_days_to_scheduled_plot">[*label*]</td>
+                                        <td class="left-side-annotation-sm"><nobr>Days to Schedule</nobr></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="annotation-data-point-sm-center" id="median_days_to_completed_plot">[*label*]</td>
+                                        <td class="left-side-annotation-sm"><nobr>Days to Complete</nobr></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-card-45pct">
+                <div>Days to See All Referrals</div>
+                <div class="column-row">
+                    <div class="y-axis-label"><nobr># Referrals</nobr></div>
+                    <div>
+                        <div>
+                            <span class="right-side-annotation-sm">Median</span>
+                            <span class="annotation-data-point-sm" id="median_days_to_seen_plot">[*label*]</span>
+                            <span class="left-side-annotation-sm">Days to Seen</span>
+                        </div>
+                        <div class="histogram-embed-block">{{ embed(roots.all_distribution_curve) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock contents %}

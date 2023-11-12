@@ -1,0 +1,112 @@
+{% macro direction_symbol(row, measure) %}
+    {% if row[measure] < 0: %}
+        <span class="table-data-direction-down"><nobr>{{ row['Dir ' + measure] }}</nobr></span>
+    {% else: %}
+        <span class="table-data-direction-up"><nobr>{{ row['Dir ' + measure] }}</nobr></span>
+    {% endif %}
+{% endmacro %}
+
+{% extends base %}
+{% block inner_head %} 
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" media="print" href="css/printstyles.css">
+<link rel="stylesheet" media="screen" href="css/screenstyles.css">
+{{ super() }} 
+{% endblock inner_head %}
+{% block contents %}
+<div class="reportpage">
+    <div class="banner-row">
+        <div class="banner-column-row">
+            <div class="report-title-1">Specialty Clinics</div>
+            <div class="report-title-2">REFERRALS</div>
+            <div class="banner-text">Report of process aims for&nbsp;&nbsp;</div>
+            <div class="report-month-tall"><B>{{ report_month }}</B></div>
+        </div>
+        <div class="report-description">
+            Clinic performance relative to targets and the process aim for routine referrals
+        </div>
+    </div>
+    <div class="headline-card-row">
+        <div>Routine Referral Throughput</div>
+        <div class="column-row">
+            <div class="card-data-column-4">
+                <div class="card-data-top-header">Rate Seen in 30d</div>
+                <div class="column-row-center">
+                    <div>
+                        <span class="card-data-value">{{ m28_percent_seen_in_30 }}</span>
+                        <span class="card-data-units">%</span>
+                    </div>
+                    <div>
+                        <span class="{{ dir_m28_percent_seen_in_30_style }}">{{ dir_m28_percent_seen_in_30 }}</span>
+                        <span class="card-data-variance-sm">{{ var_m28_percent_seen_in_30 }}%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-data-column-4">
+                <div class="card-data-top-header">91 Day Rate</div>
+                <div class="column-row-center">
+                    <div>
+                        <span class="card-data-value">{{ m91_percent_seen_in_30 }}</span>
+                        <span class="card-data-units">%</span>
+                    </div>
+                    <div>
+                        <span class="{{ dir_m91_percent_seen_in_30_style }}">{{ dir_m91_percent_seen_in_30 }}</span>
+                        <span class="card-data-variance-sm">{{ var_m91_percent_seen_in_30 }}%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-data-column-4">
+                <div class="card-data-top-header">182 Day Rate</div>
+                <div class="column-row-center">
+                    <div>
+                        <span class="card-data-value">{{ m182_percent_seen_in_30 }}</span>
+                        <span class="card-data-units">%</span>
+                    </div>
+                    <div>
+                        <span class="{{ dir_m182_percent_seen_in_30_style }}">{{ dir_m182_percent_seen_in_30 }}</span>
+                        <span class="card-data-variance-sm">{{ var_m182_percent_seen_in_30 }}%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-data-column-4">
+                <div class="card-data-top-header">364 Day Rate</div>
+                <div class="card-data">
+                    <span class="card-data-value">{{ m364_percent_seen_in_30 }}</span>
+                    <span class="card-data-units">%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="data-table-row">
+        <div>Routine Referral Performance and Improvement Direction</div>
+        <table class="data-table" cellpadding="0" cellspacing="0">
+            <thead class="data-table-header">
+                <tr>
+                    <td class="text-data">Clinic</td>
+                    <td class="percent-data"><nobr>28 Day</nobr><br><nobr>% Seen</nobr><br><nobr>in 30d</nobr></td>
+                    <td class="percent-data"><nobr>91 Day</nobr><br><nobr>% Seen</nobr><br><nobr>in 30d</nobr></td>
+                    <td class="text-data" colspan="4"><nobr>Performance vs. Target</nobr><br><nobr>91 Day, 182 Day, 364 Day</nobr></td>
+                    <td class="text-data" colspan="4"><nobr>Improvement Direction vs.</nobr><br><nobr>91 Day, 182 Day, 364 Day</nobr></td>
+                </tr>
+            </thead>
+            <tbody class="data-table-data">
+            {% for index, row in clinics.iterrows() %}
+                <tr>
+                    <td class="text-data"><nobr>{{ row['Clinic'] }}</nobr></td>
+                    <td class="percent-data"><nobr>{{ row['MOV28 Pct Routine Referrals Seen in 30d']|int }}%</nobr></td>
+                    <td class="percent-data"><nobr>{{ row['MOV91 Pct Routine Referrals Seen in 30d']|int }}%</nobr></td>
+                    <td class="text-data">{{ direction_symbol(row, 'Var Target MOV91 Pct Routine Referrals Seen in 30d') }}</td>
+                    <td class="text-data">{{ direction_symbol(row, 'Var Target MOV182 Pct Routine Referrals Seen in 30d') }}</td>
+                    <td class="text-data">{{ direction_symbol(row, 'Var Target MOV364 Pct Routine Referrals Seen in 30d') }}</td>
+                    <td class="text-data"><nobr>{{ row['Routine Performance vs. Target'] }}</nobr></td>
+                    <td class="text-data">{{ direction_symbol(row, 'Var MOV91 Pct Routine Referrals Seen in 30d') }}</td>
+                    <td class="text-data">{{ direction_symbol(row, 'Var MOV182 Pct Routine Referrals Seen in 30d') }}</td>
+                    <td class="text-data">{{ direction_symbol(row, 'Var MOV364 Pct Routine Referrals Seen in 30d') }}</td>
+                    <td class="text-data"><nobr>{{ row['Routine Improvement Direction'] }}</nobr></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock contents %}

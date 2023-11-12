@@ -1,0 +1,178 @@
+{% extends base %} 
+{% block inner_head %} 
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" media="print" href="css/printstyles_rotated.css">
+<link rel="stylesheet" media="screen" href="css/screenstyles.css">
+{{ super() }} 
+{% endblock inner_head %}
+{% block contents %}
+<div class="reportpage-rotated">
+    <div class="label-data-source-hidden">{{ embed(roots.label_data_source) }}</div>
+    <div class="label-data-source-hidden">{{ embed(roots.crm_usage_score_table) }}</div>
+    <div class="banner-row">
+        <div class="banner-column-row">
+            <div class="report-title-1">Specialty Clinics</div>
+            <div class="report-title-2">REFERRALS</div>
+            <div class="banner-text">Report of the referral conversion process in the</div>
+            <div class="slicer-embed-block" id="clinic_slicer">{{ embed(roots.clinic_slicer) }}</div>
+            <div class="report-month">clinic for&nbsp;&nbsp;<B>{{ report_month }}</B></div>
+        </div>
+        <div class="report-description">
+            Referrals tracked using the Clinic Referral Management system versus the schedule book
+        </div>
+    </div>
+    <div class="panel-row">
+        <div class="column-row">
+            <div class="panel-card-2">
+                <div>Referrals Not Accepted in CRM after 90 Days by Status</div>
+                <div class="column-row">
+                    <div class="card-data-column-2">
+                        <div class="data-card-heading-over">By Current Status</div>
+                        <div>{{ embed(roots.not_accepted_status_bar_chart) }}</div>
+                    </div>
+                    <div class="card-data-column-2-center">
+                        <div class="headline-data-110px">
+                            <div>
+                                <nobr>
+                                    <span class="right-side-annotation-med">Out of</span>
+                                    <span class="annotation-data-point-med" id="kept_referral_count_plot">[*label*]</span>
+                                    <span class="left-side-annotation-med">referrals kept</span>
+                                </nobr>
+                                <br>
+                                <nobr>
+                                    <span class="annotation-data-point-med" id="accepted_ratio_plot">[*label*]</span>
+                                    <span class="left-side-annotation-med">are accepted in CRM</span>
+                                </nobr>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-card-2">
+                <div>Appointments Linked in CRM after 90 Days</div>
+                <div class="column-row">
+                    <div class="card-data-column-2">
+                        <div class="data-card-heading-over"># of Referrals</div>
+                        <div>{{ embed(roots.linked_ratio_bar_chart) }}</div>
+                    </div>
+                    <div class="card-data-column-2-center">
+                        <div class="headline-data-110px">
+                            <div>
+                                <nobr>
+                                    <span class="right-side-annotation-med">Out of</span>
+                                    <span class="annotation-data-point-med" id="scheduled_referral_count_plot">[*label*]</span>
+                                    <span class="left-side-annotation-med">scheduled referrals</span>
+                                </nobr>
+                                <br>
+                                <nobr>
+                                    <span class="annotation-data-point-med" id="linked_appointment_ratio_plot">[*label*]</span>
+                                    <span class="left-side-annotation-med">have appointments linked</span>
+                                </nobr>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="column-row">
+            <div class="panel-card-2">
+                <div>Direct Secure Message Referrals in CRM after 90 Days</div>
+                <div class="column-row">
+                    <div class="card-data-column-2">
+                        <div class="data-card-heading-over"># of Referrals</div>
+                        <div>{{ embed(roots.dsm_to_crm_ratio_bar_chart) }}</div>
+                    </div>
+                    <div class="card-data-column-2-center">
+                        <div class="headline-data-110px">
+                            <div>
+                                <nobr>
+                                    <span class="right-side-annotation-med">Out of</span>
+                                    <span class="annotation-data-point-med" id="dsm_referral_count_plot">[*label*]</span>
+                                    <span class="left-side-annotation-med">DSM referrals</span>
+                                </nobr>
+                                <br>
+                                <nobr>
+                                    <span class="annotation-data-point-med" id="dsm_to_crm_referral_ratio_plot">[*label*]</span>
+                                    <span class="left-side-annotation-med">have a similar CRM referral</span>
+                                </nobr>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-card-2">
+                <div>Referrals Seen in CRM after 90 Days</div>
+                <div class="column-row">
+                    <div class="card-data-column-2">
+                        <div class="data-card-heading-over"># of Referrals</div>
+                        <div>{{ embed(roots.crm_seen_ratio_bar_chart) }}</div>
+                    </div>
+                    <div class="card-data-column-2-center">
+                        <div class="headline-data-110px">
+                            <div>
+                                <nobr>
+                                    <span class="right-side-annotation-med">Out of</span>
+                                    <span class="annotation-data-point-med" id="seen_referral_count_plot">[*label*]</span>
+                                    <span class="left-side-annotation-med">referrals seen</span>
+                                </nobr>
+                                <br>
+                                <nobr>
+                                    <span class="annotation-data-point-med" id="crm_seen_referral_ratio_plot">[*label*]</span>
+                                    <span class="left-side-annotation-med">are seen in CRM</span>
+                                </nobr>
+                                <br>
+                                <nobr>
+                                    <span class="annotation-data-point-med" id="seen_and_completed_ratio_plot">[*label*]</span>
+                                    <span class="left-side-annotation-med">are completed</span>
+                                </nobr>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-row">
+        <div class="column-row">
+            <div class="panel-card-2">
+                <div>Test of CRM Use for Referrals Sent 90 Days Prior</div>
+                <table class="data-table" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                    <td>
+                        <table cellpadding="0" cellspacing="0" border="0" style="margin-left: 8px; margin-bottom: 8px;">
+                            <thead class="data-table-header">
+                                <tr>
+                                    <td class="text-data">Test</td>
+                                    <td class="numeric-data">%<br>Result</td>
+                                    <td class="numeric-data">Points<BR>Possible</td>
+                                    <td class="numeric-data">Point<BR>Result</td>
+                                </tr>
+                            </thead>
+                            <tbody class="data-table-data" id="crm_usage_score_table">
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                </table>
+            </div>
+            <div class="panel-card-2">
+                <div class="headline-data-210px">
+                    <div>
+                        <nobr>
+                            <span class="annotation-data-point-lg" style="padding-left: 8px;" id="total_test_score_plot">[*label*]</span>
+                            <span class="center-annotation-lg" style="text-align: right;">points out of</span>
+                            <span class="annotation-data-point-lg" style="padding-left: 8px;" id="total_test_value_plot">[*label*]</span>
+                            <span class="center-annotation-lg" style="text-align: right;">points possible</span>
+                        </nobr>
+                        <br>
+                        <nobr>
+                            <span class="annotation-data-point-lg" style="padding-left: 8px;" id="total_test_percent_plot">[*label*]</span>
+                            <span class="center-annotation-lg" style="text-align: right;">clinic score for CRM use</span>
+                        </nobr>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> <!-- report page -->
+{% endblock contents %}

@@ -1,0 +1,17 @@
+/* Portrait page */ 
+@page {
+    size: 8.5in 11in;
+    margin-top: 0.5in;
+    margin-bottom: 0.5in;
+    margin-left: 0.25in;
+    margin-right: 0.25in;
+}
+
+/* jinja2 template in bokeh overrides html and body element size, padding, and margin 
+   with these values.  This could change between Bokeh versions. */ 
+html, body { 
+    margin: 0px;
+    padding: 0px; 
+    height: 100%; 
+    box-sizing: border-box; 
+}

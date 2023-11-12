@@ -1,0 +1,117 @@
+{% macro age_category_color(row, measure, category) %}
+    {% if category == ">90d": %}
+        <div class="age-category-g90d"><nobr>{{ '%0.2f'|format(row[measure]|float) }}</nobr></div>
+    {% else: %}
+        <div class="age-category-{{ category }}"><nobr>{{ '%0.2f'|format(row[measure]|float) }}</nobr></div>
+    {% endif %}
+{% endmacro %}
+
+{% macro direction_symbol(row, measure) %}
+    {% if row[measure] > 0: %}
+        <span class="table-data-direction-down"><nobr>{{ row['Dir ' + measure] }}</nobr></span>
+    {% else: %}
+        <span class="table-data-direction-up"><nobr>{{ row['Dir ' + measure] }}</nobr></span>
+    {% endif %}
+{% endmacro %}
+
+{% extends base %}
+{% block inner_head %} 
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" media="print" href="css/printstyles.css">
+<link rel="stylesheet" media="screen" href="css/screenstyles.css">
+{{ super() }} 
+{% endblock inner_head %}
+{% block contents %}
+<div class="reportpage">
+    <div class="banner-row">
+        <div class="banner-column-row">
+            <div class="report-title-1">Specialty Clinics</div>
+            <div class="report-title-2">REFERRALS</div>
+            <div class="banner-text">Report of referral ages for&nbsp;&nbsp;</div>
+            <div class="report-month-tall"><B>{{ report_month }}</B></div>
+        </div>
+        <div class="report-description">
+            Processing times for referrals aged from date sent to date scheduled, or today's date
+        </div>
+    </div>
+    <div class="headline-card-row">
+        <div>Days to Schedule Referred Patients</div>
+        <div class="column-row">
+            <div class="card-data-column-4">
+                <div class="card-data-top-header">28 Day Median</div>
+                <div class="column-row-center">
+                    <div>
+                        <span class="card-data-value">{{ m28_median_to_scheduled }}</span>
+                        <span class="card-data-units">Days</span>
+                    </div>
+                    <div>
+                        <span class="{{ dir_m28_median_to_scheduled_style }}">{{ dir_m28_median_to_scheduled }}</span>
+                        <span class="card-data-variance-sm">{{ var_m28_median_to_scheduled }}d</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-data-column-4">
+                <div class="card-data-top-header">91 Day Median</div>
+                <div class="column-row-center">
+                    <div>
+                        <span class="card-data-value">{{ m91_median_to_scheduled }}</span>
+                        <span class="card-data-units">Days</span>
+                    </div>
+                    <div>
+                        <span class="{{ dir_m91_median_to_scheduled_style }}">{{ dir_m91_median_to_scheduled }}</span>
+                        <span class="card-data-variance-sm">{{ var_m91_median_to_scheduled }}d</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-data-column-4">
+                <div class="card-data-top-header">182 Day Median</div>
+                <div class="column-row-center">
+                    <div>
+                        <span class="card-data-value">{{ m182_median_to_scheduled }}</span>
+                        <span class="card-data-units"> Days</span>
+                    </div>
+                    <div>
+                        <span class="{{ dir_m182_median_to_scheduled_style }}">{{ dir_m182_median_to_scheduled }}</span>
+                        <span class="card-data-variance-sm">{{ var_m182_median_to_scheduled }}d</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-data-column-4">
+                <div class="card-data-top-header">364 Day Median</div>
+                <div class="card-data">
+                    <span class="card-data-value">{{ m364_median_to_scheduled }}</span>
+                    <span class="card-data-units">Days</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="data-table-row">
+        <div>Days to Schedule Referred Patients By Clinic</div>
+        <table class="data-table" cellpadding="0" cellspacing="0">
+            <thead class="data-table-header">
+                <tr>
+                    <td class="text-data">Clinic</td>
+                    <td class="numeric-data">#<br>Referrals<br><nobr>Sent 90d</nobr><br><nobr>Prior</nobr></td>
+                    <td class="percent-data">%<br>Scheduled<br><nobr>After 90d</nobr></td>
+                    <td class="numeric-data"><nobr>28 Day</nobr><br>Median<br><nobr>Days to</nobr><br>Schedule</td>
+                    <td class="numeric-data" colspan="2"><nobr>Days to</nobr><br>Schedule<br><nobr>vs. 91d</nobr><br>Median</td>
+                    <td class="numeric-data"><nobr>91 Day</nobr><br>Median<br><nobr>Days to</nobr><br>Schedule</td>
+                </tr>
+            </thead>
+            <tbody class="data-table-data">
+            {% for index, row in clinics.iterrows() %}
+                <tr>
+                    <td class="text-data"><nobr>{{ row['Clinic'] }}</nobr></td>
+                    <td class="numeric-data"><nobr>{{ row['Referrals Sent']|int }}</nobr></td>
+                    <td class="percent-data"><nobr>{{ row['Pct Referrals Scheduled After 90d']|int }}%</nobr></td>
+                    <td class="numeric-data">{{ age_category_color(row, 'MOV28 Median Days until Scheduled', row['Age Category to Scheduled']) }}</td>
+                    <td>{{ direction_symbol(row, 'Var MOV91 Median Days until Scheduled') }}</td>
+                    <td class="numeric-data">{{ '%0.2f'|format(row['Var MOV91 Median Days until Scheduled']|float) }}</td>
+                    <td class="numeric-data">{{ age_category_color(row, 'MOV91 Median Days until Scheduled', row['Age Category to Scheduled']) }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock contents %}

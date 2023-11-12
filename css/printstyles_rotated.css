@@ -1,0 +1,24 @@
+/* A stylesheet to include in page layouts intended for landscape printing. 
+   As much as I would like to use named page styles instead of different css 
+   files, the Playwright remote automation API for Chromium doesn't seem to 
+   work with named page styles at the moment.  Other libraries for automating PDF 
+   output from HTML aren't any better. 
+*/ 
+
+/* Landscape page */ 
+@page {
+    size: 14in 8.5in;
+    margin-top: 0.5in;
+    margin-bottom: 0.5in;
+    margin-left: 0.25in;
+    margin-right: 0.25in;
+}
+
+/* jinja2 template in bokeh overrides html and body element size, padding, and margin 
+   with these values.  This could change between Bokeh versions. */ 
+html, body { 
+    margin: 0px;
+    padding: 0px; 
+    height: 100%; 
+    box-sizing: border-box; 
+}

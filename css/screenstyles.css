@@ -1,0 +1,8 @@
+/* jinja2 template in bokeh overrides html and body element size, padding, and margin 
+   with these values.  This could change between Bokeh versions. */ 
+html, body { 
+    margin: 0px;
+    padding: 0px; 
+    height: 100%; 
+    box-sizing: border-box; 
+}

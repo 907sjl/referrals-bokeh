@@ -1,0 +1,110 @@
+{% extends base %} 
+{% block inner_head %} 
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" media="print" href="css/printstyles_rotated.css">
+<link rel="stylesheet" media="screen" href="css/screenstyles.css">
+{{ super() }} 
+{% endblock inner_head %}
+{% block contents %}
+<div class="reportpage-rotated">
+    <div class="banner-row">
+        <div class="banner-column-row">
+            <div class="report-title-1">Specialty Clinics</div>
+            <div class="report-title-2">REFERRALS</div>
+            <div class="banner-text">Report of the referral conversion process in the</div>
+            <div class="slicer-embed-block" id="clinic_slicer">{{ embed(roots.clinic_slicer) }}</div>
+            <div class="report-month">clinic for&nbsp;&nbsp;<B>{{ report_month }}</B></div>
+        </div>
+        <div class="report-description">
+            Breakouts of referrals in a hold or pending status sent any time prior to today's date
+        </div>
+    </div>
+    <div class="panel-column-row">
+        <div class="card-data-column-2">
+            <div class="panel">
+                <div class="column-row">
+                    <div class="panel-card-2">
+                        <div>Referrals On-Hold by Reason</div>
+                        <div>{{ embed(roots.on_hold_reason_bar_chart) }}</div>
+                    </div>
+                    <div class="panel-card-2">
+                        <div>Referrals by Age of Hold</div>
+                        <div class="column-row">
+                            <div class="y-axis-label"><nobr># Referrals</nobr></div>
+                            <div>
+                                <div>{{ embed(roots.on_hold_distribution_histogram) }}</div>
+                                <div class="x-axis-label">Days On-Hold</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-data-column-2">
+            <div class="panel">
+                <div class="column-row">
+                    <div class="panel-card-2">
+                        <div>Referrals Pending Reschedule</div>
+                        <div class="data-card-sub-heading-over">By Sub-Status</div>
+                        <div>{{ embed(roots.reschedule_status_bar_chart) }}</div>
+                    </div>
+                    <div class="panel-card-2">
+                        <div>Referrals by Days Pending</div>
+                        <div class="column-row">
+                            <div class="y-axis-label"><nobr># Referrals</nobr></div>
+                            <div>
+                                <div>{{ embed(roots.reschedule_distribution_histogram) }}</div>
+                                <div class="x-axis-label">Days Pending Reschedule</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-column-row">
+        <div class="card-data-column-2">
+            <div class="panel">
+                <div class="column-row">
+                    <div class="panel-card-2">
+                        <div>Referrals Pending Acceptance</div>
+                        <div class="data-card-sub-heading-over">By Sub-Status</div>
+                        <div>{{ embed(roots.acceptance_status_bar_chart) }}</div>
+                    </div>
+                    <div class="panel-card-2">
+                        <div>Pending Acceptance by Age</div>
+                        <div class="column-row">
+                            <div class="y-axis-label"><nobr># Referrals</nobr></div>
+                            <div>
+                                <div>{{ embed(roots.acceptance_distribution_histogram) }}</div>
+                                <div class="x-axis-label">Referral Age in Days</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-data-column-2">
+            <div class="panel">
+                <div class="column-row">
+                    <div class="panel-card-2">
+                        <div>Referrals in Accepted Status</div>
+                        <div class="data-card-sub-heading-over">By Sub-Status</div>
+                        <div>{{ embed(roots.accepted_status_bar_chart) }}</div>
+                    </div>
+                    <div class="panel-card-2">
+                        <div>Accepted Status by Age</div>
+                        <div class="column-row">
+                            <div class="y-axis-label"><nobr># Referrals</nobr></div>
+                            <div>
+                                <div>{{ embed(roots.accepted_distribution_histogram) }}</div>
+                                <div class="x-axis-label">Referral Age in Days</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> <!-- report page --> 
+{% endblock contents %}

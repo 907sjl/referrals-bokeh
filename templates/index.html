@@ -1,0 +1,60 @@
+<html>
+<head>
+    <script>
+        function getCookie(cname) {
+          let name = cname + "=";
+          let decodedCookie = decodeURIComponent(document.cookie);
+          let ca = decodedCookie.split(';');
+          for(let i = 0; i <ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') {
+              c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+              return c.substring(name.length, c.length);
+            }
+          }
+          return "";
+        }
+
+        function pageOnClick(p) {
+            var x = document.getElementById(selectedPage);
+            x.style.display = "none";
+            selectedPage = p;
+            x = document.getElementById(p);
+            x.src += "";
+        }
+
+        var selectedPage = "clinic_process";
+    </script>
+</head>
+<body>
+    <div>
+        <button id="cover_button" onclick="pageOnClick('cover')">Title</button>
+        <button id="scheduled_button" onclick="pageOnClick('scheduled')">Scheduled</button>
+        <button id="seen_button" onclick="pageOnClick('seen')">Seen</button>
+        <button id="routine_button" onclick="pageOnClick('routine')">Routine</button>
+        <button id="urgent_button" onclick="pageOnClick('urgent')">Urgent</button>
+        <button id="process_button" onclick="pageOnClick('clinic_process')">Process</button>
+        <button id="pending_button" onclick="pageOnClick('pending_referrals')">Pending</button>
+        <button id="crm_button" onclick="pageOnClick('crm_use')">CRM Use</button>
+    </div>
+    <iframe id="cover" src="{{ app_root }}/cover" title="Title Page" style="width: 8in; height: 10in; display: none;"></iframe>
+    <iframe id="scheduled" src="{{ app_root }}/scheduled" title="Time to Schedule Patients" style="width: 8in; height: 10in; display: none;"></iframe>
+    <iframe id="seen" src="{{ app_root }}/seen" title="Time to See Patients" style="width: 8in; height: 10in; display: none;"></iframe>
+    <iframe id="routine" src="{{ app_root }}/routine" title="Process Aim for Routine Referrals" style="width: 8in; height: 10in; display: none;"></iframe>
+    <iframe id="urgent" src="{{ app_root }}/urgent" title="Process Aim for Urgent Referrals" style="width: 8in; height: 10in; display: none;"></iframe>
+    <iframe id="clinic_process" src="{{ app_root }}/referrals" title="Clinic Referral Process" style="width: 13.5in; height: 7.5in; display: none;"></iframe>
+    <iframe id="pending_referrals" src="{{ app_root }}/pending" title="Clinic Pending Referrals" style="width: 13.5in; height: 7.5in; display: none;"></iframe>
+    <iframe id="crm_use" src="{{ app_root }}/crm" title="Clinic Referral Management" style="width: 13.5in; height: 7.5in; display: none;"></iframe>
+    <script>
+        let pages = ['cover', 'clinic_process', 'pending_referrals', 'crm_use', 'scheduled', 'seen', 'routine', 'urgent'];
+        var p;
+
+        for (var i=0; i<pages.length; i++) {
+            p = document.getElementById(pages[i]);
+            p.addEventListener("load", function() { if (selectedPage == this.id) { this.style.display = "block" } } );
+        }
+    </script>
+</body>
+</html>
