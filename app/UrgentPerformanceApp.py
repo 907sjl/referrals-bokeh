@@ -1,3 +1,9 @@
+"""
+UrgentPerformanceApp.py
+Control script for the measures of urgent referral process aim performance Bokeh application.
+https://907sjl.github.io/
+"""
+
 from jinja2 import Environment, FileSystemLoader
 
 from bokeh.document import Document

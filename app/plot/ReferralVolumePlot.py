@@ -1,3 +1,9 @@
+"""
+ReferralVolumePlot.py
+Class that represents a comparative bar chart plot of referral counts.
+https://907sjl.github.io/
+"""
+
 from bokeh.document import Document
 from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource

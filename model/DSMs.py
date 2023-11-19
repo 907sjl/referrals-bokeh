@@ -1,3 +1,9 @@
+"""
+DSMs.py
+Class that represents the data model and measures for direct secure message usage.
+https://907sjl.github.io/
+"""
+
 from pandas import DataFrame
 
 import pandas as pd

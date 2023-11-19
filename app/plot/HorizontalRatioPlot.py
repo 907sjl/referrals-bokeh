@@ -1,3 +1,9 @@
+"""
+HorizontalRatioPlot.py
+Class that represents a comparative bar chart plot of referral counts that represent a process ratio.
+https://907sjl.github.io/
+"""
+
 import pandas as pd
 
 from bokeh.document import Document

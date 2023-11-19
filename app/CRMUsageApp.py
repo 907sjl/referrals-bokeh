@@ -1,3 +1,9 @@
+"""
+CRMUsageApp.py
+Control script for the measures of clinic referral management usage Bokeh application.
+https://907sjl.github.io/
+"""
+
 from jinja2 import Environment, FileSystemLoader
 
 from bokeh.document import Document

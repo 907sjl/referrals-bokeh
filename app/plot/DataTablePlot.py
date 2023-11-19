@@ -1,3 +1,9 @@
+"""
+DataTablePlot.py
+Class that represents a data driven HTML table.
+https://907sjl.github.io/
+"""
+
 import pandas as pd
 
 from pandas import DataFrame

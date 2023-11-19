@@ -1,3 +1,9 @@
+"""
+CRM.py
+Class that represents the data model and measures for clinic referral management system usage.
+https://907sjl.github.io/
+"""
+
 from pandas import DataFrame
 
 import pandas as pd

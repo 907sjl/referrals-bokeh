@@ -1,4 +1,12 @@
-import os 
+"""
+referrals-bokeh
+A collection of Bokeh apps in a dashboard that displays referral conversion process
+measures for specialty clinics.  This is an example of work by Steven J Leathard posted
+to my GitHub site.
+https://907sjl.github.io/
+"""
+
+import os
 
 from jinja2 import Environment, FileSystemLoader
 from tornado.web import RequestHandler, StaticFileHandler

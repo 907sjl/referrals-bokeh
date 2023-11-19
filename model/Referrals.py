@@ -1,3 +1,9 @@
+"""
+Referrals.py
+Class that represents the source for referral data.
+https://907sjl.github.io/
+"""
+
 import pandas as pd
 from pandas import DataFrame
 

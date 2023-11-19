@@ -1,3 +1,9 @@
+"""
+Pending.py
+Class that represents the data model and measures for pending referrals.
+https://907sjl.github.io/
+"""
+
 from pandas import DataFrame
 
 from datetime import datetime

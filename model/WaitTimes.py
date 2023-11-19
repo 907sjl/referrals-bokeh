@@ -1,3 +1,9 @@
+"""
+WaitTimes.py
+Class that represents wait times for referrals to be seen.
+https://907sjl.github.io/
+"""
+
 import pandas as pd
 from pandas import DataFrame
 import numpy as np

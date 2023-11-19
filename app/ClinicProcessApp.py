@@ -1,3 +1,9 @@
+"""
+ClinicProcessApp.py
+Control script for the clinic process measures Bokeh application.
+https://907sjl.github.io/
+"""
+
 from jinja2 import Environment, FileSystemLoader
 
 from bokeh.document import Document

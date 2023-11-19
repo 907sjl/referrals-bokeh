@@ -1,3 +1,9 @@
+"""
+common.py
+Functions and data entities used by multiple classes.
+https://907sjl.github.io/
+"""
+
 from bokeh.document import Document
 from bokeh.models import Select
 

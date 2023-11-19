@@ -1,3 +1,9 @@
+"""
+CategoryBarsPlot.py
+Class that represents a comparative bar chart plot of referral counts.
+https://907sjl.github.io/
+"""
+
 import pandas as pd
 
 from datetime import datetime

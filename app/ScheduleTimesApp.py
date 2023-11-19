@@ -1,3 +1,9 @@
+"""
+ScheduleTimesApp.py
+Control script for the measures of time to schedule referrals Bokeh application.
+https://907sjl.github.io/
+"""
+
 from jinja2 import Environment, FileSystemLoader
 
 from bokeh.document import Document
