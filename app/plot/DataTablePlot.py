@@ -16,6 +16,10 @@ from bokeh.models.annotations import LabelSet
 
 
 class DataTablePlot:
+    """
+    Class that represents a data driven HTML table.  It renders the table using a javascript
+    callback.
+    """
 
     def __init__(self,
                  doc: Document,

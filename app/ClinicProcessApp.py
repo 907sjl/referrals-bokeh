@@ -21,6 +21,9 @@ import app.plot.DataLabelPlot as dlp
 
 
 class ClinicProcessApp:
+    """
+    This class represents the Bokeh application with referral process measures for a clinic.
+    """
 
     # Class level properties
     app_title = 'Referral Process Report'

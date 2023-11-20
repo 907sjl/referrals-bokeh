@@ -21,6 +21,9 @@ import app.common as v
 
 
 class HorizontalRatioPlot:
+    """
+    Class that represents a comparative bar chart plot of referral counts that represent a process ratio.
+    """
 
     def __init__(self,
                  doc: Document,

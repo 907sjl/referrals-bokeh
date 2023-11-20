@@ -15,6 +15,9 @@ import app.common as v
 
 
 class SeenTimesApp:
+    """
+    This class represents the Bokeh application with measures of time to see referrals.
+    """
 
     # Class level properties
 

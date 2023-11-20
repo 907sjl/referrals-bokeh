@@ -20,6 +20,10 @@ import app.plot.DataTablePlot as dtp
 
 
 class NotAcceptedStatusPlot(cbp.CategoryBarsPlot):
+    """
+    This class is an override of CategoryBarsPlot to show a similar visualization for
+    referrals not accepted by their current status.
+    """
     def __init__(self,
                  doc: Document,
                  plot_name: str):
@@ -38,6 +42,9 @@ class NotAcceptedStatusPlot(cbp.CategoryBarsPlot):
 
 
 class CRMUsageApp:
+    """
+    This class represents the Bokeh application with measures of clinic referral management usage.
+    """
 
     # Class level properties
     app_title = 'CRM Usage Report'

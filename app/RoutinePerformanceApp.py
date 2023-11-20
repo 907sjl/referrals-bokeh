@@ -15,6 +15,9 @@ import app.common as v
 
 
 class RoutinePerformanceApp:
+    """
+    This class represents the Bokeh application with routine referral process aim performance measures.
+    """
 
     # Class level properties
 

@@ -15,6 +15,9 @@ import app.common as v
 
 
 class UrgentPerformanceApp:
+    """
+    This class represents the Bokeh application with urgent referral process aim performance measures.
+    """
 
     # Class level properties
 

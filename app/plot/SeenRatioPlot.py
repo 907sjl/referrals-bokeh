@@ -23,6 +23,9 @@ import app.common as v
 
 
 class SeenRatioPlot:
+    """
+    Class that represents a pie chart representing the percent of referrals seen or scheduled.
+    """
 
     def __init__(self,
                  doc: Document,

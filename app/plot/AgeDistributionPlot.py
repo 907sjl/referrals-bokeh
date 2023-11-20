@@ -20,6 +20,9 @@ import app.common as v
 
 
 class AgeDistributionPlot:
+    """
+    Class that represents a distribution plot of referrals by age bins.
+    """
 
     def __init__(self,
                  doc: Document,

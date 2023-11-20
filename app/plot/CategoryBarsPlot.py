@@ -16,6 +16,9 @@ import model.Pending as p
 
 
 class CategoryBarsPlot:
+    """
+    Class that represents a comparative bar chart plot of referral counts.
+    """
 
     def __init__(self,
                  doc: Document,

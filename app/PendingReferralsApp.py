@@ -19,6 +19,10 @@ import app.plot.CategoryBarsPlot as cbp
 
 
 class PendingAgeDistributionPlot(adp.AgeDistributionPlot):
+    """
+    This class is an override of AgeDistributionPlot to show a similar visualization for
+    the ages of referrals that are pending to be seen.
+    """
 
     def __init__(self,
                  doc: Document,
@@ -63,6 +67,9 @@ class PendingAgeDistributionPlot(adp.AgeDistributionPlot):
 
 
 class PendingReferralsApp:
+    """
+    This class represents the Bokeh application with pending referrals measures.
+    """
 
     # Class level properties
     app_title = 'Pending Referrals Report'

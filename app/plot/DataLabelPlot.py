@@ -12,6 +12,11 @@ from bokeh.models.annotations import LabelSet
 
 
 class LabelDataSource:
+    """
+    Class that represents a collection of data driven HTML labels.  This class holds the column
+    data source that stores the data for the labels.  It also renders the labels using a javascript
+    callback.
+    """
 
     def __init__(self,
                  doc: Document,
@@ -114,6 +119,10 @@ class LabelDataSource:
 
 
 class CallbackLabelPlot:
+    """
+    Supplies the data driven HTML label text and an optional css style name for one label
+    using the LabelDataSource class to store and render the text.
+    """
 
     def __init__(self,
                  doc: Document,

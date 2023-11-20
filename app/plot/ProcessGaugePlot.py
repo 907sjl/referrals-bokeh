@@ -23,6 +23,9 @@ import app.common as v
 
 
 class ProcessGaugePlot:
+    """
+    Class that represents a gauge plot of referral process aim performance rates.
+    """
 
     def __init__(self,
                  doc: Document,

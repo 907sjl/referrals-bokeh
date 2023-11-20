@@ -15,6 +15,9 @@ import app.common as v
 
 
 class ScheduleTimesApp:
+    """
+    This class represents the Bokeh application with measures of time to schedule referrals.
+    """
 
     # Class level properties
 
