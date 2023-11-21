@@ -4,6 +4,7 @@ Control script for the measures of clinic referral management usage Bokeh applic
 https://907sjl.github.io/
 
 Classes:
+    NotAcceptedStatusPlot - Overrides CategoryBarsPlot to show a similar visualization for referrals not accepted.
     CRMUsageApp - Implements the Bokeh application with measures of Clinic Referral Management system usage.
 
 Functions:
@@ -213,7 +214,7 @@ class CRMUsageApp:
 
     def _update_measures_of_dsm_imports(self, month: datetime) -> None:
         """
-        Collects and renders data showing the rate at which direct secure
+        Collects and updates data showing the rate at which direct secure
         messages are converted to referrals.  This is called to update a
         previously rendered document.
         :param month: The month to query data in
@@ -273,7 +274,7 @@ class CRMUsageApp:
 
     def _update_measures_of_referrals_tagged_as_seen(self, month: datetime) -> None:
         """
-        Collects and renders data showing the rate at which referrals are tagged
+        Collects and updates data showing the rate at which referrals are tagged
         as seen when the patient is seen.  This is called to update a
         previously rendered document.
         :param month: The month to query data in
@@ -333,7 +334,7 @@ class CRMUsageApp:
 
     def update_measures_of_linked_appointments(self, month: datetime) -> None:
         """
-        Collects and renders data showing the rate at which appointments are linked
+        Collects and updates data showing the rate at which appointments are linked
         to referrals when the patient is scheduled.  This is called to update a
         previously rendered document.
         :param month: The month to query data in
@@ -386,7 +387,7 @@ class CRMUsageApp:
 
     def update_measures_referrals_not_accepted(self, month: datetime) -> None:
         """
-        Collects and renders data showing the rate at which referrals are accepted
+        Collects and updates data showing the rate at which referrals are accepted
         by the clinic.  This is called to update a previously rendered document.
         :param month: The month to query data in
         """
