@@ -112,7 +112,7 @@ class PendingReferralsApp:
     Public Methods:
         get_app_title - Returns the application title prefixed with the selected clinic name
         set_clinic - Sets the currently selected clinic
-        insert_clinic_process_data - Sequences the data collection and rendering in the application document
+        insert_pending_referrals_data - Sequences the data collection and rendering in the application document
     """
 
     # Class level properties

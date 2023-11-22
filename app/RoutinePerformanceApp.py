@@ -2,6 +2,12 @@
 RoutinePerformanceApp.py
 Control script for the measures of routine referral process aim performance Bokeh application.
 https://907sjl.github.io/
+
+Classes:
+    RoutinePerformanceApp - Implements the Bokeh application showing routine referral process aim data across clinics.
+
+Functions:
+    routine_performance_app_handler - Bokeh app handler function that instantiates the class and initializes.
 """
 
 from jinja2 import Environment, FileSystemLoader
@@ -16,7 +22,17 @@ import app.common as v
 
 class RoutinePerformanceApp:
     """
-    This class represents the Bokeh application with routine referral process aim performance measures.
+    This class represents the Bokeh application with routine performance aim measures across clincs.
+
+    Public Attributes:
+        app_title - The page title for the Bokeh application
+        app_template - The html template file used by this application
+        app_root - The route through the HTTP server that is the root of HTTP resource requests
+        clinics - The data set of performance data for all clinics
+        document - The Bokeh document for an instance of this application
+
+    Public Methods:
+        insert_routine_process_data - Sequences the data collection and rendering in the application document
     """
 
     # Class level properties
@@ -31,19 +47,22 @@ class RoutinePerformanceApp:
     app_title = 'Routine Referral Performance'
     app_template = 'routine.html'
     app_root = 'referrals'
-    app_env = Environment(loader=FileSystemLoader('templates'))
+    _app_env = Environment(loader=FileSystemLoader('templates'))
 
     def __init__(self, doc: Document):
+        """
+        Initialize instances.
+        :param doc: The Bokeh document for an instance of this application.
+        """
         self.document = doc
 
     # Methods
 
     def insert_routine_performance_data(self) -> None:
-        # Bokeh application handler to modify a blank document that will be served from a Bokeh
-        # server application.  This application will be invoked by the script that is injected into the HTML
-        # in the response by Jinja2 when the template is rendered. The Bokeh client script opens
-        # a websocket to the Bokeh server application to obtain the contents to render in the browser.  This
-        # handler adds content to be rendered into the application document.
+        """
+        Sequences the load of data and rendering of visuals for this Bokeh application in response
+        to a new document being created for a new Bokeh session.
+        """
 
         # The Bokeh application handlers pass this text through to the HTML page title
         self.document.title = self.app_title
@@ -55,7 +74,7 @@ class RoutinePerformanceApp:
         # This line overrides the Jinja2 template with text from a custom template file
         # in the app templates directory using a Tornado environment set up as a global
         # in this script module above.
-        self.document.template = self.app_env.get_template(self.app_template)
+        self.document.template = self._app_env.get_template(self.app_template)
 
         # The Bokeh application handlers automatically pass this dictionary into the
         # Jina2 template as parameters.  The parameters appear as variables to the
@@ -114,6 +133,11 @@ class RoutinePerformanceApp:
 
 
 def routine_performance_app_handler(doc: Document) -> None:
+    """
+    Bokeh application handler to modify a blank document that will be served from a Bokeh
+    server application.  This handler adds content to be rendered into the application document.
+    :param doc: The Bokeh document to add content to
+    """
     routine_app = RoutinePerformanceApp(doc)
     routine_app.insert_routine_performance_data()
 # END routine_performance_app_handler
