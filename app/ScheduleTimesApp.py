@@ -2,6 +2,12 @@
 ScheduleTimesApp.py
 Control script for the measures of time to schedule referrals Bokeh application.
 https://907sjl.github.io/
+
+Classes:
+    ScheduleTimesApp - Implements the Bokeh application with measures of time to schedule referrals across clinics.
+
+Functions:
+    schedule_times_app_handler - Bokeh app handler function that instantiates the class and initializes.
 """
 
 from jinja2 import Environment, FileSystemLoader
@@ -16,7 +22,17 @@ import app.common as v
 
 class ScheduleTimesApp:
     """
-    This class represents the Bokeh application with measures of time to schedule referrals.
+    This class represents the Bokeh application with measures of time to schedule referrals across clinics.
+
+    Public Attributes:
+        app_title - The page title for the Bokeh application
+        app_template - The html template file used by this application
+        app_root - The route through the HTTP server that is the root of HTTP resource requests
+        clinics - The data set of performance data for all clinics
+        document - The Bokeh document for an instance of this application
+
+    Public Methods:
+        insert_wait_to_schedule_data - Sequences the data collection and rendering in the application document
     """
 
     # Class level properties
@@ -31,19 +47,22 @@ class ScheduleTimesApp:
     app_title = 'Wait Times to Schedule Referrals'
     app_template = 'scheduled.html'
     app_root = 'referrals'
-    app_env = Environment(loader=FileSystemLoader('templates'))
+    _app_env = Environment(loader=FileSystemLoader('templates'))
 
     def __init__(self, doc: Document):
+        """
+        Initialize instances.
+        :param doc: The Bokeh document for an instance of this application.
+        """
         self.document = doc
 
     # Methods
 
     def insert_wait_to_schedule_data(self) -> None:
-        # Bokeh application handler to modify a blank document that will be served from a Bokeh
-        # server application.  This application will be invoked by the script that is injected into the HTML
-        # in the response by Jinja2 when the template is rendered. The Bokeh client script opens
-        # a websocket to the Bokeh server application to obtain the contents to render in the browser.  This
-        # handler adds content to be rendered into the application document.
+        """
+        Sequences the load of data and rendering of visuals for this Bokeh application in response
+        to a new document being created for a new Bokeh session.
+        """
 
         # The Bokeh application handlers pass this text through to the HTML page title
         self.document.title = self.app_title
@@ -55,7 +74,7 @@ class ScheduleTimesApp:
         # This line overrides the Jinja2 template with text from a custom template file
         # in the app templates directory using a Tornado environment set up as a global
         # in this script module above.
-        self.document.template = self.app_env.get_template(self.app_template)
+        self.document.template = self._app_env.get_template(self.app_template)
 
         # The Bokeh application handlers automatically pass this dictionary into the
         # Jina2 template as parameters.  The parameters appear as variables to the
@@ -114,6 +133,11 @@ class ScheduleTimesApp:
 
 
 def schedule_times_app_handler(doc: Document) -> None:
+    """
+    Bokeh application handler to modify a blank document that will be served from a Bokeh
+    server application.  This handler adds content to be rendered into the application document.
+    :param doc: The Bokeh document to add content to
+    """
     schedule_app = ScheduleTimesApp(doc)
     schedule_app.insert_wait_to_schedule_data()
 # END schedule_times_app_handler

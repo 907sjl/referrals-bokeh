@@ -32,7 +32,7 @@ class RoutinePerformanceApp:
         document - The Bokeh document for an instance of this application
 
     Public Methods:
-        insert_routine_process_data - Sequences the data collection and rendering in the application document
+        insert_routine_performance_data - Sequences the data collection and rendering in the application document
     """
 
     # Class level properties
