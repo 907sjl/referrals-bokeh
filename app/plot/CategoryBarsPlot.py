@@ -2,6 +2,9 @@
 CategoryBarsPlot.py
 Class that represents a comparative bar chart plot of referral counts.
 https://907sjl.github.io/
+
+Classes:
+    CategoryBarsPlot - Adds a horizontal bar chart of referral counts by category to a Bokeh document
 """
 
 import pandas as pd
@@ -17,7 +20,13 @@ import model.Pending as p
 
 class CategoryBarsPlot:
     """
-    Class that represents a comparative bar chart plot of referral counts.
+    Class that represents a horizontal bar chart of referral counts by category in a Bokeh document
+
+    Public Methods:
+        load_clinic_data - Loads the data used to render visualizations.
+        create_plot_data - Creates or updates the Bokeh ColumnDataSource using the clinic data collected.
+        add_plot - Creates the figure and models that render the visual.
+        update_plot - Updates the y-axis range using the most recently updated data.
     """
 
     def __init__(self,
@@ -27,6 +36,15 @@ class CategoryBarsPlot:
                  category_column: str,
                  values_column: str,
                  plot_width: int = 286):
+        """
+        Initialize instances.
+        :param doc: The Bokeh document for an instance of this application
+        :param plot_name: The name of the plot in the HTML document
+        :param values_measure: A name for the measure used to get the category counts
+        :param category_column: The name of the column containing the categories
+        :param values_column: The name of the column containing the count values
+        :param plot_width: The width of the resulting plot in pixels
+        """
         self.document = doc
         self.figure = None
         self.volume_y_range = None
@@ -46,32 +64,20 @@ class CategoryBarsPlot:
     # END __init__
 
     def load_clinic_data(self, month: datetime, clinic: str) -> None:
-        if self.values_measure == 'get_counts_by_on_hold_reason':
-            volume_values = p.get_counts_by_on_hold_reason(clinic).copy()
-            volume_values['Reason for Hold'] = volume_values['Reason for Hold'].str.replace('Coordinating', 'Coord.')
-        elif self.values_measure == 'get_counts_by_pending_reschedule_sub_status':
-            volume_values = p.get_counts_by_pending_reschedule_sub_status(clinic).copy()
-            volume_values['Referral Sub-Status'] = (
-                volume_values['Referral Sub-Status'].str.replace('Call Patient to Schedule Appointment',
-                                                                 'Call Patient to Schedule'))
-        elif self.values_measure == 'get_counts_by_pending_acceptance_sub_status':
-            volume_values = p.get_counts_by_pending_acceptance_sub_status(clinic).copy()
-            volume_values['Referral Sub-Status'] = (
-                volume_values['Referral Sub-Status'].str.replace('Call Patient to Schedule Appointment',
-                                                                 'Call Patient to Schedule'))
-        elif self.values_measure == 'get_counts_by_accepted_referral_sub_status':
-            volume_values = p.get_counts_by_accepted_referral_sub_status(clinic).copy()
-            volume_values['Referral Sub-Status'] = (
-                volume_values['Referral Sub-Status'].str.replace('Call Patient to Schedule Appointment',
-                                                                 'Call Patient to Schedule'))
-        else:
-            volume_values = pd.DataFrame.from_dict({self.category_column: [],
-                                                    self.values_column: []})
+        """
+        Loads the data used to render visualizations.
+        :param month: The month to query data from
+        :param clinic: The name of the clinic to query data for
+        """
+
+        volume_values = (
+            p.get_counts_by_category(clinic, self.values_measure, self.category_column, self.values_column))
         self.ratio_data = {'measure': volume_values[self.category_column].tolist(),
                            'value': volume_values[self.values_column].tolist()}
     # END load_clinic_data
 
     def create_plot_data(self) -> None:
+        """Creates or updates the Bokeh ColumnDataSource using the clinic data collected."""
 
         max_data_value = max(self.ratio_data['value'])
         if len(self.ratio_data['measure']) > 11:
@@ -119,6 +125,7 @@ class CategoryBarsPlot:
     # END create_plot_data
 
     def add_plot(self) -> None:
+        """Creates the figure and models that render the visual."""
 
         # Reverse the measures for the chart range so that the first measure is on top (higher y value)
         self.volume_y_range = FactorRange(factors=self.plot_data['measure'].to_list()[::-1])
@@ -186,6 +193,7 @@ class CategoryBarsPlot:
     # END add_plot
 
     def update_plot(self) -> None:
+        """Updates the y-axis range using the most recently updated data."""
         self.figure.height = self.plot_height
         self.figure.y_range.factors = self.plot_data['measure'].to_list()[::-1]
     # END update_plot

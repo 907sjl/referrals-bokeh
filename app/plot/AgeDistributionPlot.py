@@ -27,7 +27,10 @@ class AgeDistributionPlot:
     Class that adds a histogram of referrals by age category bins to a Bokeh document
 
     Public Methods:
-        load_clinic_data - Override - Loads the data used to render visualizations.
+        load_clinic_data - Loads the data used to render visualizations.
+        create_plot_data - Creates or updates the Bokeh ColumnDataSource using the clinic data collected.
+        add_plot - Creates the figure and models that render the visual.
+        update_plot - Updates the y-axis range using the most recently updated data.
     """
 
     def __init__(self,
