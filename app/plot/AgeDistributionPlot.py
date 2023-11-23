@@ -2,6 +2,9 @@
 AgeDistributionPlot.py
 Class that represents a distribution plot of referrals by age bins.
 https://907sjl.github.io/
+
+Classes:
+    AgeDistributionPlot - Adds a histogram of referrals by age category bins to a Bokeh document
 """
 
 from bokeh.document import Document
@@ -21,7 +24,10 @@ import app.common as v
 
 class AgeDistributionPlot:
     """
-    Class that represents a distribution plot of referrals by age bins.
+    Class that adds a histogram of referrals by age category bins to a Bokeh document
+
+    Public Methods:
+        load_clinic_data - Override - Loads the data used to render visualizations.
     """
 
     def __init__(self,
@@ -34,6 +40,17 @@ class AgeDistributionPlot:
                  plot_width: int = 500,
                  plot_height: int = 180,
                  include_curve: bool = False):
+        """
+        Initialize instances.
+        :param doc: The Bokeh document for an instance of this application
+        :param plot_name: The name of the plot in the HTML document
+        :param category_measure: The name of the measure used to count referrals
+        :param bar_color_map: The category color mapper for bar backgrounds
+        :param data_point_color_map: The category color mapper for data point text
+        :param plot_width: The width of the resulting plot in pixels
+        :param plot_height: The height of the resulting plot in pixels
+        :param include_curve: True to include a line with the cumulative percentage by category
+        """
 
         self.document = doc
         self.figure = None
@@ -63,6 +80,11 @@ class AgeDistributionPlot:
     # END __init__
 
     def load_clinic_data(self, month: datetime, clinic: str) -> None:
+        """
+        Loads the data used to render visualizations.
+        :param month: The month to query data from
+        :param clinic: The name of the clinic to query data for
+        """
 
         # Build list of distribution counts in same order as categories
         all_counts = []
@@ -81,7 +103,7 @@ class AgeDistributionPlot:
     # END load_clinic_data
 
     def create_plot_data(self) -> None:
-
+        """Creates or updates the Bokeh ColumnDataSource using the clinic data collected."""
         max_data_value = max(self.distribution_data['referral_count'])
         self.distribution_y_range = Range1d(0, ((24.0 / self.plot_height) + 1.0) * max_data_value)
 
@@ -166,6 +188,7 @@ class AgeDistributionPlot:
     # END create_plot_data
 
     def add_plot(self) -> None:
+        """Creates the figure and models that render the visual."""
 
         # Create a categorical range and plot area for the histogram
         distribution_x_range = FactorRange(factors=self.distribution_data['category'])
@@ -296,6 +319,7 @@ class AgeDistributionPlot:
     # END add_plot
 
     def update_plot(self) -> None:
+        """Updates the y-axis range using the most recently updated data."""
         self.figure.y_range.start = self.distribution_y_range.start
         self.figure.y_range.end = self.distribution_y_range.end
 # END CLASS AgeDistributionPlot
