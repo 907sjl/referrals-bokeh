@@ -9,6 +9,6 @@ Modules:
     DataTablePlot.py - Adds a data driven HTML table that is rendered in the template document not a shadow DOM
     HorizontalRatioPlot.py - Adds a horizontal bar chart of counts that represent a process ratio
     ProcessGaugePlot.py - Speedometer style gauge representing a process ratio and a target rate
-    ReferralVolumePlot.py - Adds a horizontal bar chart of referral counts that represent
+    ReferralVolumePlot.py - Adds a horizontal bar chart of referral counts that represent volume measures
     SeenRatioPlot.py - Adds a donut chart representing the percentage of referrals seen and scheduled
 """

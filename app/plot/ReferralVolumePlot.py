@@ -2,6 +2,9 @@
 ReferralVolumePlot.py
 Class that represents a comparative bar chart plot of referral counts.
 https://907sjl.github.io/
+
+Classes:
+    ReferralVolumePlot - Adds a horizontal bar chart of referral counts that represent volume measures
 """
 
 from bokeh.document import Document
@@ -19,7 +22,12 @@ import model.WaitTimes as wt
 
 class ReferralVolumePlot:
     """
-    Class that represents a comparative bar chart plot of referral counts.
+    Class that represents a horizontal bar chart of referral counts that represent volume measures in a Bokeh document
+
+    Public Methods:
+        load_clinic_data - Loads the data used to render visualizations.
+        create_plot_data - Creates or updates the Bokeh ColumnDataSource using the clinic data collected.
+        add_plot - Creates the figure and models that render the visual.
     """
 
     def __init__(self,
@@ -31,6 +39,17 @@ class ReferralVolumePlot:
                  closed_wbs_measure: str,
                  plot_width: int = 300,
                  plot_height: int = 80):
+        """
+        Initialize instances.
+        :param doc: The Bokeh document for an instance of this application
+        :param plot_name: The name of the plot in the HTML document
+        :param sent_measure: The name of the measure used to get the count of referrals sent
+        :param canceled_measure: The name of the measure used to get the count of referrals canceled
+        :param rejected_measure: The name of the measure used to get the count of referrals rejected
+        :param closed_wbs_measure: The name of the measure used to get the count of referrals closed without being seen
+        :param plot_width: The width of the resulting plot in pixels
+        :param plot_height: The height of the resulting plot in pixels
+        """
 
         self.document = doc
         self.plot_name = plot_name
@@ -51,6 +70,12 @@ class ReferralVolumePlot:
         self.plot_right_align_label_source = None
 
     def load_clinic_data(self, month: datetime, clinic: str) -> None:
+        """
+        Loads the data used to render visualizations.
+        :param month: The month to query data from
+        :param clinic: The name of the clinic to query data for
+        """
+
         volume_values = [wt.get_clinic_count_measure(month, clinic, self.sent_measure),
                          wt.get_clinic_count_measure(month, clinic, self.canceled_measure),
                          wt.get_clinic_count_measure(month, clinic, self.rejected_measure),
@@ -61,6 +86,7 @@ class ReferralVolumePlot:
     # END load_clinic_data
 
     def create_plot_data(self) -> None:
+        """Creates or updates the Bokeh ColumnDataSource using the clinic data collected."""
 
         max_data_value = max(self.volume_data['value'])
 
@@ -99,6 +125,7 @@ class ReferralVolumePlot:
     # END create_plot_data
 
     def add_plot(self) -> None:
+        """Creates the figure and models that render the visual."""
 
         # Reverse the measures for the chart range so that the first measure is on top (higher y value)
         volume_y_range = FactorRange(factors=self.volume_measures[::-1])

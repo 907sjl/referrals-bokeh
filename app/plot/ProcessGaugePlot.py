@@ -2,6 +2,9 @@
 ProcessGaugePlot.py
 Class that represents a gauge plot of referral process aim performance rates.
 https://907sjl.github.io/
+
+Classes:
+    ProcessGaugePlot - Adds a speedometer style gauge to a Bokeh document representing a process ratio and a target rate
 """
 
 from bokeh.document import Document
@@ -24,7 +27,12 @@ import app.common as v
 
 class ProcessGaugePlot:
     """
-    Class that represents a gauge plot of referral process aim performance rates.
+    Class that represents a speedometer gauge plot of referral process aim performance in a Bokeh document.
+
+    Public Methods:
+        load_clinic_data - Loads the data used to render visualizations.
+        create_plot_data - Creates or updates the Bokeh ColumnDataSource using the clinic data collected.
+        add_plot - Creates the figure and models that render the visual.
     """
 
     def __init__(self,
@@ -35,6 +43,17 @@ class ProcessGaugePlot:
                  gradient_color_map: LinearColorMapper,
                  plot_width: int = 140,
                  plot_height: int = 62):
+        """
+        Initialize instances.
+        :param doc: The Bokeh document for an instance of this application
+        :param plot_name: The name of the plot in the HTML document
+        :param rate_measure: The name of the measure used to get the process rate
+        :param target_measure: The name of the measure used to get the process target rate
+        :param gradient_color_map: The gradient color map for the speedometer
+        :param plot_width: The width of the resulting plot in pixels
+        :param plot_height: The height of the resulting plot in pixels
+        """
+
         self.document = doc
         self.plot_name = plot_name
         self.rate_measure = rate_measure
@@ -55,6 +74,12 @@ class ProcessGaugePlot:
     # END __init__
 
     def load_clinic_data(self, month: datetime, clinic: str) -> None:
+        """
+        Loads the data used to render visualizations.
+        :param month: The month to query data from
+        :param clinic: The name of the clinic to query data for
+        """
+
         urgent_pct = wt.get_clinic_rate_measure(month,
                                                 clinic,
                                                 self.rate_measure)
@@ -67,6 +92,8 @@ class ProcessGaugePlot:
     # END load_clinic_data
 
     def create_plot_data(self) -> None:
+        """Creates or updates the Bokeh ColumnDataSource using the clinic data collected."""
+
         ratio_dataframe = pd.DataFrame(self.ratio_data, index=[0, 1])
 
         # The half-pie chart will render left-to-right, or backwards from normal angles
@@ -135,6 +162,8 @@ class ProcessGaugePlot:
     # END create_plot_data
 
     def add_plot(self) -> None:
+        """Creates the figure and models that render the visual."""
+
         x_axis_start = 0.0 - (self.plot_width / 2.0)
         y_axis_start = 0.0
         x_axis_distance = self.plot_width

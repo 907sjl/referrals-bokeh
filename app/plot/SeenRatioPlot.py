@@ -2,6 +2,9 @@
 SeenRatioPlot.py
 Class that represents a pie chart representing the percent of referrals seen or scheduled.
 https://907sjl.github.io/
+
+Classes:
+    SeenRatioPlot - Adds a donut chart to a Bokeh document representing the percentage of referrals seen and scheduled
 """
 
 from bokeh.document import Document
@@ -24,7 +27,12 @@ import app.common as v
 
 class SeenRatioPlot:
     """
-    Class that represents a pie chart representing the percent of referrals seen or scheduled.
+    Class that represents a donut chart in a Bokeh document representing the percentage of referrals seen and scheduled
+
+    Public Methods:
+        load_clinic_data - Loads the data used to render visualizations.
+        create_plot_data - Creates or updates the Bokeh ColumnDataSource using the clinic data collected.
+        add_plot - Creates the figure and models that render the visual.
     """
 
     def __init__(self,
@@ -36,6 +44,18 @@ class SeenRatioPlot:
                  neither_measure: str,
                  plot_width: int = 300,
                  plot_height: int = 100):
+        """
+        Initialize instances.
+        :param doc: The Bokeh document for an instance of this application
+        :param plot_name: The name of the plot in the HTML document
+        :param denominator_measure: The name of the measure used to get the denominator count
+        :param seen_measure: The name of the measure used to get the count of referrals seen
+        :param scheduled_measure: The name of the measure used to get the count of referrals scheduled
+        :param neither_measure: The name of the measure used to get the count of remaining referrals
+        :param plot_width: The width of the resulting plot in pixels
+        :param plot_height: The height of the resulting plot in pixels
+        """
+
         self.document = doc
         self.plot_name = plot_name
         self.denominator_measure = denominator_measure
@@ -63,6 +83,12 @@ class SeenRatioPlot:
     # END __init__
 
     def load_clinic_data(self, month: datetime, clinic: str) -> None:
+        """
+        Loads the data used to render visualizations.
+        :param month: The month to query data from
+        :param clinic: The name of the clinic to query data for
+        """
+
         ratio_values = [wt.get_clinic_count_measure(month, clinic, self.seen_measure),
                         wt.get_clinic_count_measure(month, clinic, self.scheduled_measure),
                         wt.get_clinic_count_measure(month, clinic, self.neither_measure)]
@@ -73,6 +99,8 @@ class SeenRatioPlot:
     # END load_clinic_data
 
     def create_plot_data(self) -> None:
+        """Creates or updates the Bokeh ColumnDataSource using the clinic data collected."""
+
         # Calculate the size of the donut
         if self.plot_height < self.plot_width:
             outer_radius = self.plot_height / 2.0
@@ -187,6 +215,7 @@ class SeenRatioPlot:
     # END create_plot_data
 
     def add_plot(self) -> None:
+        """Creates the figure and models that render the visual."""
 
         x_axis_start = 0.0 - ((self.plot_width - 100.0) / 2.0)
         y_axis_start = 0.0 - (self.plot_height / 2.0)
