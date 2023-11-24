@@ -2,6 +2,9 @@
 HorizontalRatioPlot.py
 Class that represents a comparative bar chart plot of referral counts that represent a process ratio.
 https://907sjl.github.io/
+
+Classes:
+    HorizontalRatioPlot - Adds a horizontal bar chart of counts to a Bokeh document that represent a process ratio
 """
 
 import pandas as pd
@@ -22,7 +25,13 @@ import app.common as v
 
 class HorizontalRatioPlot:
     """
-    Class that represents a comparative bar chart plot of referral counts that represent a process ratio.
+    Class that represents a bar chart plot in a Bokeh document of referral counts that represent a process ratio.
+
+    Public Methods:
+        load_clinic_data - Loads the data used to render visualizations.
+        create_plot_data - Creates or updates the Bokeh ColumnDataSource using the clinic data collected.
+        add_plot - Creates the figure and models that render the visual.
+        update_plot - Updates the y-axis range using the most recently updated data.
     """
 
     def __init__(self,
@@ -36,6 +45,20 @@ class HorizontalRatioPlot:
                  denominator_name: str,
                  plot_width: int = 280,
                  plot_height: int = 56):
+        """
+        Initialize instances.
+        :param doc: The Bokeh document for an instance of this application
+        :param plot_name: The name of the plot in the HTML document
+        :param numerator_measure: The name of the measure used to get the numerator count
+        :param numerator_name: The display name for the numerator
+        :param numerator2_measure: The name of the measure used to get the secondary numerator count, if any
+        :param numerator2_name: The display name for the secondary numerator, if any
+        :param denominator_measure: The name of the measure used to get the denominator count, if any
+        :param denominator_name: The display name for the denominator
+        :param plot_width: The width of the resulting plot in pixels
+        :param plot_height: The height of the resulting plot in pixels
+        """
+
         self.document = doc
         self.figure = None
         self.volume_y_range = None
@@ -58,6 +81,12 @@ class HorizontalRatioPlot:
     # END __init__
 
     def load_clinic_data(self, month: datetime, clinic: str) -> None:
+        """
+        Loads the data used to render visualizations.
+        :param month: The month to query data from
+        :param clinic: The name of the clinic to query data for
+        """
+
         if self.numerator_measure == 'Patients with DSM and CRM Referrals After 90d':
             pk = d
         else:
@@ -84,6 +113,8 @@ class HorizontalRatioPlot:
     # END load_clinic_data
 
     def create_plot_data(self) -> None:
+        """Creates or updates the Bokeh ColumnDataSource using the clinic data collected."""
+
         # Data for volume measures
         volume_measures = [self.denominator_name, self.numerator_name]
         if self.numerator2_name != '':
@@ -131,6 +162,8 @@ class HorizontalRatioPlot:
     # END create_plot_data
 
     def add_plot(self) -> None:
+        """Creates the figure and models that render the visual."""
+
         if (self.numerator2_name != '') and (self.plot_height < 78):
             self.plot_height = 78
 
@@ -199,7 +232,9 @@ class HorizontalRatioPlot:
         self.document.add_root(self.figure)
     # END add_plot
 
-    def change_plot(self) -> None:
+    def update_plot(self) -> None:
+        """Updates the y-axis range using the most recently updated data."""
+
         self.figure.height = self.plot_height
         self.figure.y_range.factors = self.plot_data['measure'].to_list()[::-1]
     # END update_plot

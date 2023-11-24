@@ -2,6 +2,9 @@
 DataTablePlot.py
 Class that represents a data driven HTML table.
 https://907sjl.github.io/
+
+Classes:
+    DataTablePlot - Adds an HTML data driven table to a Bokeh document
 """
 
 import pandas as pd
@@ -18,24 +21,35 @@ from bokeh.models.annotations import LabelSet
 class DataTablePlot:
     """
     Class that represents a data driven HTML table.  It renders the table using a javascript
-    callback.
+    callback.  The actual plot for instances of this class is 1 pixel that should be embedded as
+    hidden and floating.
+
+    Public Methods:
+        create_plot_data - Creates or updates the Bokeh ColumnDataSource using the clinic data collected.
+        add_plot - Creates the figure and models that render the visual.
     """
 
     def __init__(self,
                  doc: Document,
                  plot_name: str,
-                 columns: dict[str, list[str]],
-                 plot_width: int = 286):
+                 columns: dict[str, list[str]]):
+        """
+        Initialize instances.
+        :param doc: The Bokeh document for an instance of this application
+        :param plot_name: The name of the plot in the HTML document
+        :param columns: A dictionary with the list of column names in the table and the list of column css classes
+        """
         self.document = doc
         self.plot_name = plot_name
         self.columns = columns
         self.ratio_data = {}
         self.plot_data = pd.DataFrame()
         self.plot_data_source = None
-        self.plot_width = plot_width
     # END __init__
 
     def create_plot_data(self, df: DataFrame) -> None:
+        """Creates or updates the Bokeh ColumnDataSource using the given DataFrame with clinic data."""
+
         df['empty'] = ''
         self.plot_data = df
         if self.plot_data_source is None:
@@ -45,6 +59,8 @@ class DataTablePlot:
     # END update_plot_data
 
     def add_plot(self) -> None:
+        """Creates the figure and models that render the visual."""
+
         label_plot = figure(title=None,
                             toolbar_location=None,
                             min_border=0,

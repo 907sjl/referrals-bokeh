@@ -1,7 +1,12 @@
 """
 DataLabelPlot.py
-Class that represents a collection of data driven HTML labels.
+Class that represents a collection of data driven HTML labels that are rendered in the template
+document instead of a shadow document.
 https://907sjl.github.io/
+
+Classes:
+    LabelDataSource - Holds a Bokeh ColumnDataSource with the label content and renders the labels
+    CallbackLabelPlot - Adds an HTML data driven label to a Bokeh document by adding data to the LabelDataSource
 """
 
 from bokeh.document import Document
@@ -15,12 +20,24 @@ class LabelDataSource:
     """
     Class that represents a collection of data driven HTML labels.  This class holds the column
     data source that stores the data for the labels.  It also renders the labels using a javascript
-    callback.
+    callback.  The actual plot for instances of this class is 1 pixel that should be embedded as
+    hidden and floating.
+
+    Public Methods:
+        load_clinic_data - Loads the data used to render visualizations.
+        create_plot_data - Creates or updates the Bokeh ColumnDataSource using the clinic data collected.
+        add_plot - Creates the figure and models that render the visual.
+        update_label - Adds or updates the content for a label.
     """
 
     def __init__(self,
                  doc: Document,
                  plot_name: str):
+        """
+        Initialize instances.
+        :param doc: The Bokeh document for an instance of this application
+        :param plot_name: The name of the plot in the HTML document
+        """
         self.document = doc
         self.plot_name = plot_name
         self.label_data = {'empty': ['']}
@@ -30,16 +47,27 @@ class LabelDataSource:
     def update_label(self,
                      name: str,
                      value: str) -> None:
+        """
+        Adds or updates the content for a label.
+        :param name: The name of the label to update
+        :param value: The content for the label
+        """
         self.label_data[name] = [value]
     # END update_label
 
     def update_label_style(self,
                            name: str,
                            class_name: str) -> None:
+        """
+        Adds or updates the name of the css class to apply to this label.
+        :param name: The name of the label to set the class for.
+        :param class_name: The name of the css class in the template document.
+        """
         self.label_data['CLASS:' + name] = [class_name]
     # END update_label
 
     def update_plot_data(self):
+        """Creates or updates the Bokeh ColumnDataSource using the clinic data collected."""
         if self.plot_data_source is None:
             self.plot_data_source = ColumnDataSource(self.label_data)
         else:
@@ -47,6 +75,7 @@ class LabelDataSource:
     # END update_plot_data
 
     def add_plot(self):
+        """Creates the figure and models that render the visual."""
         label_plot = figure(title=None,
                             toolbar_location=None,
                             min_border=0,
@@ -122,6 +151,10 @@ class CallbackLabelPlot:
     """
     Supplies the data driven HTML label text and an optional css style name for one label
     using the LabelDataSource class to store and render the text.
+
+    Public Methods:
+        set_label_text - Sets or changes the content for a label.
+        set_label_style - Sets or changes the css class for a label.
     """
 
     def __init__(self,
@@ -130,6 +163,13 @@ class CallbackLabelPlot:
                  plot_name: str,
                  label_text: str,
                  class_name: str = ''):
+        """
+        Initialize instances.
+        :param doc: The Bokeh document for an instance of this application
+        :param plot_name: The name of the plot in the HTML document
+        :param label_text: The initial default content for the label
+        :param class_name: The initial default css class name for the label
+        """
 
         self.document = doc
         self.label_data_source = label_data_source
@@ -144,11 +184,19 @@ class CallbackLabelPlot:
 
     def set_label_text(self,
                        value: str) -> None:
+        """
+        Sets or changes the content for a label.
+        :param value: The new content for the label.
+        """
         self.label_data_source.update_label(self.plot_name, value)
     # END set_label_text
 
     def set_label_style(self,
                         class_name: str) -> None:
+        """
+        Sets or changes the css class for a label.
+        :param class_name: The new class name for the label.
+        """
         self.label_data_source.update_label_style(self.plot_name, class_name)
     # END set_label_text
 # END CLASS CallbackLabelPlot
