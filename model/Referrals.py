@@ -1,7 +1,16 @@
 """
 Referrals.py
-Class that represents the source for referral data.
+Module that provides a DataFrame of individual referral data and processing times.  This module automatically
+loads referral_df with this data when imported.
 https://907sjl.github.io/
+
+Top-Level Variables:
+    referral_df - The referral master DataFrame
+
+Functions:
+    load_referral_data - Loads referral data from the source
+    create_master_data_frame - Calculates facts and adds convenience columns for downstream filtering
+    calculate_age_category - Adds a calculated age category bin name to the master referral DataFrame
 """
 
 import pandas as pd
@@ -9,15 +18,13 @@ from pandas import DataFrame
 
 from datetime import datetime
 
-print('Loading referral data...')
 
 # Effective as-of date for data
-AS_OF_DATE = datetime(2023, 3, 1)
+_AS_OF_DATE = datetime(2023, 3, 1)
 
 
-def create_master_data_frame():
-    # Future possibility of filtering to a recent period of time but for 
-    # now this loads quick enough 
+def load_referral_data() -> DataFrame:
+    """Loads referral data from the source and returns a DataFrame with a row for each referral."""
 
     date_columns = ['Date Referral Sent',
                     'Date Referral Seen',
@@ -57,13 +64,23 @@ def create_master_data_frame():
         'Date Referral Completed': 'object',
         'Date Referral Scheduled': 'object'}
 
-    df = pd.read_csv('referrals.csv', dtype=column_types, parse_dates=date_columns)
+    return pd.read_csv('referrals.csv', dtype=column_types, parse_dates=date_columns)
+# END load_referral_data
+
+
+def create_master_data_frame() -> DataFrame:
+    """
+    Calculates simple facts for each referral and adds columns to simplify downstream filtering.
+    :return: A DataFrame with the referral data that has one row per referral
+    """
+
+    df = load_referral_data()
 
     # Create time shifted date values to simplify transformations downstream
     df['Reporting Date 30 Day Lag'] = df['Date Referral Sent'] + pd.Timedelta(days=30)
     df['Reporting Date 90 Day Lag'] = df['Date Referral Sent'] + pd.Timedelta(days=90)
     df['Reporting Date 5 Day Lag'] = df['Date Referral Sent'] + pd.Timedelta(days=5)
-    df['As Of Date'] = AS_OF_DATE
+    df['As Of Date'] = _AS_OF_DATE
 
     # Calculate processing time deltas for use in measures
     # Days until the referral tagged as seen or patient checked into clinic appointment
@@ -101,10 +118,10 @@ def create_master_data_frame():
             (df.loc[idx, 'As Of Date'] - df.loc[idx, 'Date Referral Sent']) / pd.Timedelta(days=1))
 
     # Days on hold
-    df['Days On Hold'] = (AS_OF_DATE - df['Date Held']) / pd.Timedelta(days=1)
+    df['Days On Hold'] = (_AS_OF_DATE - df['Date Held']) / pd.Timedelta(days=1)
 
     # Days pending reschedule
-    df['Days Pending Reschedule'] = (AS_OF_DATE - df['Date Pending Reschedule']) / pd.Timedelta(days=1)
+    df['Days Pending Reschedule'] = (_AS_OF_DATE - df['Date Pending Reschedule']) / pd.Timedelta(days=1)
 
     # Create a convenience column to aggregate referrals that are sent and not
     # rejected, canceled, or closed without being seen
@@ -158,14 +175,13 @@ def create_master_data_frame():
 # END create_master_data_frame
 
 
-def calculate_age_category(source: DataFrame, category_column: str, age_column: str):
+def calculate_age_category(source: DataFrame, category_column: str, age_column: str) -> None:
     """
     Add age category values to a column in a given dataframe using age values
     in a given column.
     :param source: a dataframe with age values
     :param category_column: name of the column to receive the category values
     :param age_column: name of the column with the age values
-    :return: nothing
     """
 
     # Initialize the new category name column with either the first category or
@@ -190,6 +206,8 @@ def calculate_age_category(source: DataFrame, category_column: str, age_column: 
 
 
 # MAIN
+
+print('Loading referral data...')
 
 # Initialize module with master dataframe of referral data 
 referral_df = create_master_data_frame()
