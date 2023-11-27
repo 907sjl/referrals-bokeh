@@ -11,7 +11,7 @@ import numpy as np
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
-import model.Referrals as referrals
+import model.source.Referrals as referrals
 
 print('Loading wait times data set...')
 

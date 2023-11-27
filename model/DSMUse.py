@@ -1,74 +1,43 @@
 """
 DSMs.py
-Class that represents the data model and measures for direct secure message usage.
+Module that provides data from measures of direct secure message usage and conversions to referrals.
+This module automatically loads top level variables with this data when imported.
 https://907sjl.github.io/
+
+Top-Level Variables:
+    overall_measures[month] - Calculated measurement data by month aggregated across all clinics
+    clinic_measures[month] - Calculated measurement data by month by clinic
+    last_month - The first day of the previous month at time 00:00:00
+
+Functions:
+    get_clinic_count_measure - Returns the requested measure value as an integer data type
 """
 
-from pandas import DataFrame
-
 import pandas as pd
-import numpy as np 
+from pandas import DataFrame
+import numpy as np
 
 from datetime import datetime 
 from dateutil.relativedelta import relativedelta
 
-print('Loading DSM data...')
+import source.DSMs as d
+
 
 # Effective as-of date for data
-AS_OF_DATE = datetime(2023, 3, 1)
+_AS_OF_DATE = datetime(2023, 3, 1)
 
-
-# Initializations - run on execution
-
-
+# Top-level variable pointers to the DSM data
 overall_measures = {}
-dsm_views = {}
+clinic_measures = {}
 
 
-# Support functions for transforming data
-
-
-def create_master_data_frame():
-    # Future possibility of filtering to a recent period of time but for 
-    # now this loads quick enough 
-
-    date_columns = ['Message Date',
-                    'Date Referral Sent']
-
-    column_types = {
-        'Message ID': 'string',
-        'Message Date': 'object',
-        'Clinic': 'string',
-        'Sender Category': 'string',
-        'Sent From': 'string',
-        'Referral ID': 'string',
-        'Date Referral Sent': 'object',
-        'Person ID': 'string'}
-
-    df = pd.read_csv('DirectSecureMessages.csv', dtype=column_types, parse_dates=date_columns)
-
-    # Create time shifted date values to simplify transformations downstream
-    df['Reporting Date 90 Day Lag'] = df['Message Date'] + pd.Timedelta(days=90)
-
-    # Create convenience column to aggregate unique patients with referrals to the
-    # same clinic that a DSM was sent to
-    idx = ~df['Referral ID'].isna()
-    df.loc[idx, 'Referral Person ID'] = df.loc[idx, 'Person ID']
-
-    # df.to_csv(r'C:\Users\SJL\PycharmProjects\referrals-bokeh\dsm_df.csv')
-    return df
-# End create_master_data_frame
-
-
-# Functions to calculate DSM usage measures
-
-
-def get_dsm_data_for_month(source_df: DataFrame, report_month: datetime) -> DataFrame:
-    # Returns the DSM usage data for one reporting month.  A reporting month includes 
-    # measure data that looks back the appropriate amount of time for each measure. 
-    #   source_df: The pandas dataframe with the master set of dsm data 
-    #   report_month: The datetime value of the first day of the month to return data for at time 00:00:00 
-    #   returns: Dataframe of DSM usage measures
+def _calculate_dsm_measures_for_month(source_df: DataFrame, report_month: datetime) -> DataFrame:
+    """
+    Calculates DSM usage measures and measures of DSM conversions to referrals for a given month.
+    :param source_df: The master DataFrame of DSM source data
+    :param report_month: The first day of the month to return data for at time 00:00:00
+    :return: Dataframe of DSM usage measures for the given month
+    """
 
     next_month = report_month + relativedelta(months=1)
 
@@ -105,11 +74,16 @@ def get_dsm_data_for_month(source_df: DataFrame, report_month: datetime) -> Data
 # End get_dsm_data_for_month
 
 
-# Functions for data access
+def get_clinic_count_measure(report_month: datetime, clinic: str, measure: str) -> int:
+    """
+    Returns the requested measure value as an integer data type.
+    :param report_month: The month to return the measure for
+    :param clinic: The clinic to return the measure for
+    :param measure: The name of the measure to return
+    :return: The integer measure value or zero if there is none
+    """
 
-
-def get_clinic_count_measure(report_month: datetime, clinic: str, measure: str):
-    df = dsm_views[report_month]
+    df = clinic_measures[report_month]
     if measure in df.select_dtypes(include=['int64', 'int32', 'float64']).columns:
         view = df.loc[(df['Clinic'] == clinic)]
         if view.empty:
@@ -122,18 +96,17 @@ def get_clinic_count_measure(report_month: datetime, clinic: str, measure: str):
 # MAIN - run on execution
 
 
-last_month = datetime.combine(AS_OF_DATE.replace(day=1).date(), datetime.min.time()) + relativedelta(months=-1)
+print('Calculating DSM measures...')
 
-# Initialize module with master dataframe of referral data 
-dsm_df = create_master_data_frame()
+last_month = datetime.combine(_AS_OF_DATE.replace(day=1).date(), datetime.min.time()) + relativedelta(months=-1)
 
 # Create dictionary for months and wait time measures starting with last month
 # Need to have 12 months readily available
 for iter_month in range(12):
     curr_month = last_month + relativedelta(months=-1*iter_month)
     print('Calculating measures for ' + curr_month.strftime('%Y-%m-%d'))
-    curr_month_dsm_df = get_dsm_data_for_month(dsm_df, curr_month)
+    curr_month_dsm_df = _calculate_dsm_measures_for_month(d.dsm_df, curr_month)
     overall_measures[curr_month] = curr_month_dsm_df.loc[(curr_month_dsm_df['Clinic'] == '*ALL*')]
-    dsm_views[curr_month] = curr_month_dsm_df.loc[~(curr_month_dsm_df['Clinic'] == '*ALL*')]
+    clinic_measures[curr_month] = curr_month_dsm_df.loc[~(curr_month_dsm_df['Clinic'] == '*ALL*')]
 
-print('DSM data loaded')
+print('DSM measures calculated')

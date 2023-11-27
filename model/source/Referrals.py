@@ -1,6 +1,6 @@
 """
 Referrals.py
-Module that provides a DataFrame of individual referral data and processing times.  This module automatically
+Module that sources and provides individual referral data.  This module automatically
 loads referral_df with this data when imported.
 https://907sjl.github.io/
 

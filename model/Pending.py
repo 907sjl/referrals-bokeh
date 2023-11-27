@@ -9,7 +9,7 @@ from pandas import DataFrame
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
-import model.Referrals as referrals
+import model.source.Referrals as referrals
 
 print('Loading holds and pending data set...')
 
@@ -45,7 +45,24 @@ def get_on_hold_data(referral_df: DataFrame) -> tuple[DataFrame, DataFrame]:
         .reset_index()
     
     return age_distribution_df, reason_distribution_df  
-# End get_on_hold_data
+# END get_on_hold_data
+
+
+def get_counts_by_category(clinic: str, category: str, category_column: str, values_column: str) -> DataFrame:
+    """
+    Returns the categorical counts of referrals for a clinic according to the category given.
+    :param clinic: The name of the clinic to return data for
+    :param category: The category to count referrals by
+    :param category_column: The name of the category column to return in a default
+    :param values_column: The name of the values columns to return in a default
+    :return: A DataFrame with the referral counts by category
+    """
+    func = globals()[category]
+    if func is None:
+        return DataFrame.from_dict({category_column: [], values_column: []})
+    else:
+        return func(clinic).copy()
+# END get_counts_by_category
 
 
 def get_counts_by_on_hold_reason(clinic: str) -> DataFrame:
@@ -53,8 +70,10 @@ def get_counts_by_on_hold_reason(clinic: str) -> DataFrame:
     # any time in the past and still in an on-hold status. 
     #   report_clinic: The name of a clinic to return data for
     #   returns: A dataframe of hold reason distributions
-    return on_hold_reasons_df.loc[(on_hold_reasons_df['Clinic'] == clinic)]
-# End get_counts_by_on_hold_reason
+    df = on_hold_reasons_df.loc[(on_hold_reasons_df['Clinic'] == clinic)].copy()
+    df['Reason for Hold'] = df['Reason for Hold'].str.replace('Coordinating', 'Coord.')
+    return df
+# END get_counts_by_on_hold_reason
 
 
 def get_on_hold_reason_list(clinic: str) -> list[str]:
@@ -117,7 +136,11 @@ def get_counts_by_pending_reschedule_sub_status(clinic: str) -> DataFrame:
     # any time in the past and still in a pending reschedule status. 
     #   report_clinic: The name of a clinic to return data for
     #   returns: A dataframe of sub-status distributions
-    return reschedule_status_df.loc[(reschedule_status_df['Clinic'] == clinic)]
+    df = reschedule_status_df.loc[(reschedule_status_df['Clinic'] == clinic)].copy()
+    df['Referral Sub-Status'] = (
+        df['Referral Sub-Status'].str.replace('Call Patient to Schedule Appointment',
+                                              'Call Patient to Schedule'))
+    return df
 # End get_counts_by_pending_reschedule_sub_status
 
 
@@ -173,7 +196,7 @@ def get_pending_acceptance_data(referral_df: DataFrame) -> tuple[DataFrame, Data
         .reset_index()
     
     return age_distribution_df, reason_distribution_df  
-# End get_pending_acceptance_data
+# END get_pending_acceptance_data
 
 
 def get_counts_by_pending_acceptance_sub_status(clinic: str) -> DataFrame:
@@ -181,8 +204,12 @@ def get_counts_by_pending_acceptance_sub_status(clinic: str) -> DataFrame:
     # any time in the past and still in a pending acceptance status. 
     #   report_clinic: The name of a clinic to return data for
     #   returns: A dataframe of sub-status distributions
-    return acceptance_status_df.loc[(acceptance_status_df['Clinic'] == clinic)]
-# End get_counts_by_pending_acceptance_sub_status
+    df = acceptance_status_df.loc[(acceptance_status_df['Clinic'] == clinic)].copy()
+    df['Referral Sub-Status'] = (
+        df['Referral Sub-Status'].str.replace('Call Patient to Schedule Appointment',
+                                              'Call Patient to Schedule'))
+    return df
+# END get_counts_by_pending_acceptance_sub_status
 
 
 def get_pending_acceptance_sub_status_list(clinic: str) -> list[str]:
@@ -191,7 +218,7 @@ def get_pending_acceptance_sub_status_list(clinic: str) -> list[str]:
     #   report_clinic: The name of a clinic to return data for
     #   returns: A list of sub-statuses
     return acceptance_status_df.loc[(acceptance_status_df['Clinic'] == clinic)]['Referral Sub-Status'].tolist()
-# End get_pending_acceptance_sub_status_list
+# END get_pending_acceptance_sub_status_list
 
 
 def get_pending_acceptance_age_by_category(clinic: str, category: str) -> int:
@@ -246,7 +273,11 @@ def get_counts_by_accepted_referral_sub_status(clinic: str) -> DataFrame:
     # any time in the past and still in an accepted status. 
     #   report_clinic: The name of a clinic to return data for
     #   returns: A dataframe of sub-status distributions
-    return accepted_status_df.loc[(accepted_status_df['Clinic'] == clinic)]
+    df = accepted_status_df.loc[(accepted_status_df['Clinic'] == clinic)].copy()
+    df['Referral Sub-Status'] = (
+        df['Referral Sub-Status'].str.replace('Call Patient to Schedule Appointment',
+                                              'Call Patient to Schedule'))
+    return df
 # End get_counts_by_accepted_referral_sub_status
 
 
