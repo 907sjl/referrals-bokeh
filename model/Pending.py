@@ -9,7 +9,7 @@ from pandas import DataFrame
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
-import model.source.Referrals as referrals
+import model.source.Referrals as r
 
 print('Loading holds and pending data set...')
 
@@ -30,7 +30,7 @@ def get_on_hold_data(referral_df: DataFrame) -> tuple[DataFrame, DataFrame]:
     on_hold_df = referral_df.loc[(referral_df['Referral Status'] == 'On Hold')].copy()
 
     # Categorize the days on hold
-    referrals.calculate_age_category(on_hold_df, 'Age Category On Hold', 'Days On Hold')
+    r.calculate_age_category(on_hold_df, 'Age Category On Hold', 'Days On Hold')
 
     # Create sums of referrals by clinic and age category combinations
     age_distribution_df = on_hold_df.groupby(['Clinic', 'Age Category On Hold']) \
@@ -113,7 +113,7 @@ def get_pending_reschedule_data(referral_df: DataFrame) -> tuple[DataFrame, Data
     pending_df = referral_df.loc[(referral_df['Referral Status'] == 'Pending Reschedule')].copy()
 
     # Categorize the days pending
-    referrals.calculate_age_category(pending_df, 'Age Category Pending Reschedule', 'Days Pending Reschedule')
+    r.calculate_age_category(pending_df, 'Age Category Pending Reschedule', 'Days Pending Reschedule')
 
     # Create sums of referrals by clinic and age category combinations
     age_distribution_df = pending_df.groupby(['Clinic', 'Age Category Pending Reschedule']) \
@@ -181,7 +181,7 @@ def get_pending_acceptance_data(referral_df: DataFrame) -> tuple[DataFrame, Data
     pending_df = referral_df.loc[(referral_df['Referral Status'] == 'Pending Acceptance')].copy()
 
     # Categorize the days pending
-    referrals.calculate_age_category(pending_df, 'Age Category Pending Acceptance', 'Days until Referral Accepted')
+    r.calculate_age_category(pending_df, 'Age Category Pending Acceptance', 'Days until Referral Accepted')
 
     # Create sums of referrals by clinic and age category combinations
     age_distribution_df = pending_df.groupby(['Clinic', 'Age Category Pending Acceptance']) \
@@ -250,7 +250,7 @@ def get_accepted_status_data(referral_df: DataFrame) -> tuple[DataFrame, DataFra
 
     # Categorize the days in accepted status.  If the referral is still in accepted status then it hasn't
     # been moved on to another status.  Using the age until patient seen as referral age. 
-    referrals.calculate_age_category(pending_df, 'Age Category to Seen', 'Days until Patient Seen or Check In')
+    r.calculate_age_category(pending_df, 'Age Category to Seen', 'Days until Patient Seen or Check In')
 
     # Create sums of referrals by clinic and age category combinations
     age_distribution_df = pending_df.groupby(['Clinic', 'Age Category to Seen']) \
@@ -310,9 +310,9 @@ def get_accepted_referral_age_by_category(clinic: str, category: str) -> int:
 
 last_month = datetime.combine(AS_OF_DATE.replace(day=1).date(), datetime.min.time()) + relativedelta(months=-1)
 
-on_hold_ages_df, on_hold_reasons_df = get_on_hold_data(referrals.referral_df)
-reschedule_ages_df, reschedule_status_df = get_pending_reschedule_data(referrals.referral_df)
-acceptance_ages_df, acceptance_status_df = get_pending_acceptance_data(referrals.referral_df)
-accepted_ages_df, accepted_status_df = get_accepted_status_data(referrals.referral_df)
+on_hold_ages_df, on_hold_reasons_df = get_on_hold_data(r.referral_df)
+reschedule_ages_df, reschedule_status_df = get_pending_reschedule_data(r.referral_df)
+acceptance_ages_df, acceptance_status_df = get_pending_acceptance_data(r.referral_df)
+accepted_ages_df, accepted_status_df = get_accepted_status_data(r.referral_df)
 
 print('Holds and pending loaded')

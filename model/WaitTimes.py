@@ -11,7 +11,7 @@ import numpy as np
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
-import model.source.Referrals as referrals
+import model.source.Referrals as r
 
 print('Loading wait times data set...')
 
@@ -352,7 +352,7 @@ def calculate_distributions_after_90_days(referrals_df: DataFrame,
     source_df = referrals_df.loc[idx].copy()
 
     # Categorize the days to seen for referrals after 90 days
-    referrals.calculate_age_category(source_df, 'Age Category to Seen', 'Days until Patient Seen or Check In')
+    r.calculate_age_category(source_df, 'Age Category to Seen', 'Days until Patient Seen or Check In')
 
     # Create a data set of referral counts by priority and age category to seen
     distribution_df = source_df.groupby(['Clinic', 'Referral Priority', 'Age Category to Seen']) \
@@ -861,10 +861,10 @@ def calculate_process_measures_for_month(referral_df: DataFrame,
     process_measures_df = process_measures_df.fillna(0)
 
     # Tag the calculated ages to schedule with a category name 
-    referrals.calculate_age_category(process_measures_df, 'Age Category to Scheduled', 'Median Days until Scheduled')
+    r.calculate_age_category(process_measures_df, 'Age Category to Scheduled', 'Median Days until Scheduled')
 
     # Tag the calculated ages to seen with a category name 
-    referrals.calculate_age_category(process_measures_df, 'Age Category to Seen', 'Median Days until Seen')
+    r.calculate_age_category(process_measures_df, 'Age Category to Seen', 'Median Days until Seen')
 
     return process_measures_df, after_90d_distribution_df
 # End calculate_process_measures_for_month
@@ -1065,7 +1065,7 @@ for iter_month in range(12):
 
     # Calculate measure values for this month
     curr_month_clinic_df, curr_month_distributions_df = (
-        calculate_process_measures_for_month(referrals.referral_df, curr_month))
+        calculate_process_measures_for_month(r.referral_df, curr_month))
     curr_month_clinic_df = add_targets(curr_month_clinic_df)
     curr_month_clinic_df = calculate_dependent_variances(curr_month_clinic_df, DEPENDENT_VARIANCES)
     curr_month_clinic_df = calculate_variance_categories(curr_month_clinic_df, VARIANCE_CATEGORIES)
