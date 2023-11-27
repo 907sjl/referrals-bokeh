@@ -15,7 +15,7 @@ from bokeh.document import Document
 from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource, FactorRange
 from bokeh.models.annotations import HTMLLabelSet
-import model.Pending as p
+import model.PendingTime as p
 
 
 class CategoryBarsPlot:

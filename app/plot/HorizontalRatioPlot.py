@@ -17,9 +17,9 @@ from bokeh.models.annotations import HTMLLabelSet
 
 from datetime import datetime
 
-import model.WaitTimes as wt
-import model.CRM as c
-import model.DSMs as d
+import model.ProcessTime as wt
+import model.CRMUse as c
+import model.DSMUse as d
 import app.common as v
 
 

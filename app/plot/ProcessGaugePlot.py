@@ -21,7 +21,7 @@ from math import pi
 
 from numpy import cos, sin
 
-import model.WaitTimes as wt
+import model.ProcessTime as wt
 import app.common as v
 
 

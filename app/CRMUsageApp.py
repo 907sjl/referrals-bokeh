@@ -17,8 +17,8 @@ from bokeh.document import Document
 
 from datetime import date, datetime
 
-import model.WaitTimes as wt
-import model.CRM as c
+import model.ProcessTime as wt
+import model.CRMUse as c
 import app.common as v
 import app.plot.CategoryBarsPlot as cbp
 import app.plot.HorizontalRatioPlot as hrp
@@ -221,7 +221,7 @@ class CRMUsageApp:
         """
         self._dsm_import_ratio_plot.load_clinic_data(month, self.clinic)
         self._dsm_import_ratio_plot.create_plot_data()
-        self._dsm_import_ratio_plot.change_plot()
+        self._dsm_import_ratio_plot.update_plot()
 
         if self._dsm_import_ratio_plot.ratio_data['DSM Referrals'] == 0:
             crm_referral_ratio = 1.0
@@ -281,7 +281,7 @@ class CRMUsageApp:
         """
         self._tagged_ratio_plot.load_clinic_data(month, self.clinic)
         self._tagged_ratio_plot.create_plot_data()
-        self._tagged_ratio_plot.change_plot()
+        self._tagged_ratio_plot.update_plot()
 
         if self._tagged_ratio_plot.ratio_data['All Seen'] > 0:
             crm_seen_referral_ratio = (self._tagged_ratio_plot.ratio_data['Seen in CRM'] /
@@ -341,7 +341,7 @@ class CRMUsageApp:
         """
         self._linked_ratio_plot.load_clinic_data(month, self.clinic)
         self._linked_ratio_plot.create_plot_data()
-        self._linked_ratio_plot.change_plot()
+        self._linked_ratio_plot.update_plot()
 
         if self._linked_ratio_plot.ratio_data['Scheduled'] > 0:
             linked_appointment_ratio = (self._linked_ratio_plot.ratio_data['Linked in CRM'] /

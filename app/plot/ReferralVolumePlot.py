@@ -17,7 +17,7 @@ import pandas as pd
 
 from datetime import datetime
 
-import model.WaitTimes as wt
+import model.ProcessTime as wt
 
 
 class ReferralVolumePlot:

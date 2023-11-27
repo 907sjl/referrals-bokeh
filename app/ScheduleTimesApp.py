@@ -16,7 +16,7 @@ from bokeh.document import Document
 
 from datetime import date
 
-import model.WaitTimes as wt
+import model.ProcessTime as wt
 import app.common as v
 
 

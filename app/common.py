@@ -24,7 +24,7 @@ from bokeh.core.property.vectorization import Field
 from bokeh.models import LinearColorMapper, CustomJS
 from bokeh.transform import factor_cmap
 
-import model.WaitTimes as wt
+import model.ProcessTime as wt
 
 
 # reverse heat map color palette

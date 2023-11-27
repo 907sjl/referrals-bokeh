@@ -93,20 +93,21 @@ def get_clinic_count_measure(report_month: datetime, clinic: str, measure: str) 
 # END get_clinic_count_measure
 
 
-# MAIN - run on execution
+def _calculate_dsm_measures() -> None:
+    for iter_month in range(12):
+        curr_month = last_month + relativedelta(months=-1 * iter_month)
+        print('Calculating measures for ' + curr_month.strftime('%Y-%m-%d'))
+        curr_month_dsm_df = _calculate_dsm_measures_for_month(d.dsm_df, curr_month)
+        overall_measures[curr_month] = curr_month_dsm_df.loc[(curr_month_dsm_df['Clinic'] == '*ALL*')]
+        clinic_measures[curr_month] = curr_month_dsm_df.loc[~(curr_month_dsm_df['Clinic'] == '*ALL*')]
+# END calculate_dsm_measures
 
+
+# MAIN - run on execution
 
 print('Calculating DSM measures...')
 
 last_month = datetime.combine(_AS_OF_DATE.replace(day=1).date(), datetime.min.time()) + relativedelta(months=-1)
-
-# Create dictionary for months and wait time measures starting with last month
-# Need to have 12 months readily available
-for iter_month in range(12):
-    curr_month = last_month + relativedelta(months=-1*iter_month)
-    print('Calculating measures for ' + curr_month.strftime('%Y-%m-%d'))
-    curr_month_dsm_df = _calculate_dsm_measures_for_month(d.dsm_df, curr_month)
-    overall_measures[curr_month] = curr_month_dsm_df.loc[(curr_month_dsm_df['Clinic'] == '*ALL*')]
-    clinic_measures[curr_month] = curr_month_dsm_df.loc[~(curr_month_dsm_df['Clinic'] == '*ALL*')]
+_calculate_dsm_measures()
 
 print('DSM measures calculated')

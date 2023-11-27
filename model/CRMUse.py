@@ -188,23 +188,25 @@ def get_crm_usage_test_results(report_month: datetime, clinic: str) -> DataFrame
 # END get_crm_usage_test_results
 
 
+def _calculate_crm_measures() -> None:
+    for iter_month in range(12):
+        curr_month = last_month + relativedelta(months=-1 * iter_month)
+        print('Calculating measures for ' + curr_month.strftime('%Y-%m-%d'))
+        curr_month_crm_df, curr_month_distributions_df, curr_month_tests_df = (
+            _calculate_crm_measures_for_month(r.referral_df, curr_month))
+        overall_measures[curr_month] = curr_month_crm_df.loc[(curr_month_crm_df['Clinic'] == '*ALL*')]
+        clinic_measures[curr_month] = curr_month_crm_df.loc[~(curr_month_crm_df['Clinic'] == '*ALL*')]
+        distribution_data[curr_month] = (
+            curr_month_distributions_df.loc)[~(curr_month_distributions_df['Clinic'] == '*ALL*')]
+        test_results[curr_month] = curr_month_tests_df
+# END calculate_crm_measures
+
+
 # MAIN
 
 print('Calculating CRM measures...')
 
 last_month = datetime.combine(_AS_OF_DATE.replace(day=1).date(), datetime.min.time()) + relativedelta(months=-1)
-
-# Create dictionary for months and wait time measures starting with last month
-# Need to have 12 months readily available
-for iter_month in range(12):
-    curr_month = last_month + relativedelta(months=-1*iter_month)
-    print('Calculating measures for ' + curr_month.strftime('%Y-%m-%d'))
-    curr_month_crm_df, curr_month_distributions_df, curr_month_tests_df = (
-        _calculate_crm_measures_for_month(r.referral_df, curr_month))
-    overall_measures[curr_month] = curr_month_crm_df.loc[(curr_month_crm_df['Clinic'] == '*ALL*')]
-    clinic_measures[curr_month] = curr_month_crm_df.loc[~(curr_month_crm_df['Clinic'] == '*ALL*')]
-    distribution_data[curr_month] = (
-        curr_month_distributions_df.loc)[~(curr_month_distributions_df['Clinic'] == '*ALL*')]
-    test_results[curr_month] = curr_month_tests_df
+_calculate_crm_measures()
 
 print('CRM measures calculated')

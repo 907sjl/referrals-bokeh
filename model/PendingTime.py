@@ -1,7 +1,23 @@
 """
-Pending.py
-Class that represents the data model and measures for pending referrals.
+PendingTime.py
+Module that provides data for pending referral wait times.  This data is not aggregated by month.  All referrals
+in a pending status are included.
 https://907sjl.github.io/
+
+Top-Level Variables:
+    last_month - The first day of the previous month at time 00:00:00
+
+Functions:
+    get_counts_by_category - Returns the counts of referrals by category in a given pending status
+    get_count_by_age_category - Returns count of referrals in an age bin for referrals in the given pending status
+    get_counts_by_on_hold_reason - Returns a DataFrame of current referral counts by hold reason for the given clinic
+    get_on_hold_age_by_category - Returns count of on-hold referrals currently in an age category for the given clinic
+    get_counts_by_pending_reschedule_sub_status - Returns pending reschedule referral counts by queue sub-status
+    get_pending_reschedule_age_by_category - Returns count of pending reschedule referrals in an age category
+    get_counts_by_pending_acceptance_sub_status - Returns pending acceptance referral counts by queue sub-status
+    get_pending_acceptance_age_by_category - Returns count of pending acceptance referrals in an age category
+    get_counts_by_accepted_referral_sub_status - Returns accepted stats referral counts by queue sub-status
+    get_accepted_referral_age_by_category - Returns count of accepted referrals in an age category
 """
 
 from pandas import DataFrame
@@ -11,20 +27,18 @@ from dateutil.relativedelta import relativedelta
 
 import model.source.Referrals as r
 
-print('Loading holds and pending data set...')
-
 # Effective as-of date for data
-AS_OF_DATE = datetime(2023, 3, 1)
+_AS_OF_DATE = datetime(2023, 3, 1)
 
 
-# On-Hold Measures
-
-
-def get_on_hold_data(referral_df: DataFrame) -> tuple[DataFrame, DataFrame]:
-    # Returns the on hold referral data.  All data represents referrals sent at 
-    # any time in the past and still in an on-hold status. 
-    #   referral_df: The pandas dataframe with the master set of referral data 
-    #   returns: 1) a dataframe on hold age distributions, 2) a dataframe of hold reason distributions
+def _calculate_on_hold_measures(referral_df: DataFrame) -> tuple[DataFrame, DataFrame]:
+    """
+    Calculates measures of referral time on hold for referrals currently on hold.
+    :param referral_df: The master DataFrame of referral source data
+    :return: Returns a tuple of two DataFrames
+        - A DataFrame of referral counts by age category on hold
+        - A DataFrame of referral counts by hold reason
+    """
 
     # Create sliced views of data for the on hold or pending statuses
     on_hold_df = referral_df.loc[(referral_df['Referral Status'] == 'On Hold')].copy()
@@ -45,19 +59,19 @@ def get_on_hold_data(referral_df: DataFrame) -> tuple[DataFrame, DataFrame]:
         .reset_index()
     
     return age_distribution_df, reason_distribution_df  
-# END get_on_hold_data
+# END calculate_on_hold_measures
 
 
-def get_counts_by_category(clinic: str, category: str, category_column: str, values_column: str) -> DataFrame:
+def get_counts_by_category(clinic: str, count_function: str, category_column: str, values_column: str) -> DataFrame:
     """
-    Returns the categorical counts of referrals for a clinic according to the category given.
+    Returns the counts of referrals by category in a given pending status.
     :param clinic: The name of the clinic to return data for
-    :param category: The category to count referrals by
+    :param count_function: The name of a function in this module that returns the category count
     :param category_column: The name of the category column to return in a default
     :param values_column: The name of the values columns to return in a default
     :return: A DataFrame with the referral counts by category
     """
-    func = globals()[category]
+    func = globals()[count_function]
     if func is None:
         return DataFrame.from_dict({category_column: [], values_column: []})
     else:
@@ -65,32 +79,34 @@ def get_counts_by_category(clinic: str, category: str, category_column: str, val
 # END get_counts_by_category
 
 
+def get_count_by_age_category(clinic: str, count_function: str, category: str) -> int:
+    """
+    Returns a single count of referrals in an age bin category for referrals currently in the given pending status.
+    :param clinic: The name of the clinic to return data for
+    :param count_function: The name of a function in this module that returns the category count
+    :param category: The name of the age bin category to return a count for
+    :return: An integer count of referrals in that age category, or zero if there are none
+    """
+    func = globals()[count_function]
+    if func is None:
+        return 0
+    else:
+        return func(clinic, category)
+# END get_count_by_age_category
+
+
 def get_counts_by_on_hold_reason(clinic: str) -> DataFrame:
-    # Returns the on hold reason counts for a clinic.  All data represents referrals sent at 
-    # any time in the past and still in an on-hold status. 
-    #   report_clinic: The name of a clinic to return data for
-    #   returns: A dataframe of hold reason distributions
-    df = on_hold_reasons_df.loc[(on_hold_reasons_df['Clinic'] == clinic)].copy()
+    """Returns a DataFrame of current referral counts by hold reason for the given clinic."""
+    df = _on_hold_reasons_df.loc[(_on_hold_reasons_df['Clinic'] == clinic)].copy()
     df['Reason for Hold'] = df['Reason for Hold'].str.replace('Coordinating', 'Coord.')
     return df
 # END get_counts_by_on_hold_reason
 
 
-def get_on_hold_reason_list(clinic: str) -> list[str]:
-    # Returns the on hold reasons used by a clinic as a list.  All data represents referrals sent at 
-    # any time in the past and still in an on-hold status. 
-    #   report_clinic: The name of a clinic to return data for
-    #   returns: A list of hold reasons
-    return on_hold_reasons_df.loc[(on_hold_reasons_df['Clinic'] == clinic)]['Reason for Hold'].tolist()
-# End get_on_hold_reason_list
-
-
 def get_on_hold_age_by_category(clinic: str, category: str) -> int:
-    # Returns the on hold age count for a clinic and category combination 
-    #   report_clinic: The name of the clinic being measured
-    #   category: The category value to measure
+    """Returns the count of on-hold referrals currently in an age category for the given clinic."""
 
-    df = on_hold_ages_df
+    df = _on_hold_ages_df
     view = df.loc[(df['Clinic'] == clinic)
                   & (df['Age Category On Hold'] == category)]
     if len(view.index) == 0:
@@ -100,14 +116,14 @@ def get_on_hold_age_by_category(clinic: str, category: str) -> int:
 # END get_on_hold_age_by_category
 
 
-# Pending Reschedule Measures
-
-
-def get_pending_reschedule_data(referral_df: DataFrame) -> tuple[DataFrame, DataFrame]:
-    # Returns the pending reschedule referral data.  All data represents referrals sent at 
-    # any time in the past and still in a pending reschedule status. 
-    #   referral_df: The pandas dataframe with the master set of referral data 
-    #   returns: 1) a dataframe on pending reschedule age distributions, 2) a dataframe of sub-status distributions
+def _calculate_pending_reschedule_measures(referral_df: DataFrame) -> tuple[DataFrame, DataFrame]:
+    """
+    Calculates measures of referral time waiting for referrals currently pending reschedule.
+    :param referral_df: The master DataFrame of referral source data
+    :return: Returns a tuple of two DataFrames
+        - A DataFrame of referral counts by age category on hold
+        - A DataFrame of referral counts by hold reason
+    """
 
     # Create sliced views of data for the on hold or pending statuses
     pending_df = referral_df.loc[(referral_df['Referral Status'] == 'Pending Reschedule')].copy()
@@ -128,15 +144,12 @@ def get_pending_reschedule_data(referral_df: DataFrame) -> tuple[DataFrame, Data
         .reset_index()
     
     return age_distribution_df, reason_distribution_df  
-# End get_pending_reschedule_data
+# End calculate_pending_reschedule_measures
 
 
 def get_counts_by_pending_reschedule_sub_status(clinic: str) -> DataFrame:
-    # Returns the pending reschedule sub-status counts for a clinic.  All data represents referrals sent at 
-    # any time in the past and still in a pending reschedule status. 
-    #   report_clinic: The name of a clinic to return data for
-    #   returns: A dataframe of sub-status distributions
-    df = reschedule_status_df.loc[(reschedule_status_df['Clinic'] == clinic)].copy()
+    """Returns a DataFrame of current pending reschedule referral counts by queue sub-status for the given clinic."""
+    df = _reschedule_status_df.loc[(_reschedule_status_df['Clinic'] == clinic)].copy()
     df['Referral Sub-Status'] = (
         df['Referral Sub-Status'].str.replace('Call Patient to Schedule Appointment',
                                               'Call Patient to Schedule'))
@@ -144,21 +157,10 @@ def get_counts_by_pending_reschedule_sub_status(clinic: str) -> DataFrame:
 # End get_counts_by_pending_reschedule_sub_status
 
 
-def get_pending_reschedule_sub_status_list(clinic: str) -> list[str]:
-    # Returns the pending reschedule sub-statuses used by a clinic as a list.  All data represents referrals sent at 
-    # any time in the past and still in a pending reschedule status. 
-    #   report_clinic: The name of a clinic to return data for
-    #   returns: A list of hold reasons
-    return reschedule_status_df.loc[(reschedule_status_df['Clinic'] == clinic)]['Referral Sub-Status'].tolist()
-# End get_pending_reschedule_sub_status_list
-
-
 def get_pending_reschedule_age_by_category(clinic: str, category: str) -> int:
-    # Returns the pending reschedule age count for a clinic and category combination 
-    #   report_clinic: The name of the clinic being measured
-    #   category: The category value to measure
+    """Returns the count of pending reschedule referrals currently in an age category for the given clinic."""
 
-    df = reschedule_ages_df
+    df = _reschedule_ages_df
     view = df.loc[(df['Clinic'] == clinic)
                   & (df['Age Category Pending Reschedule'] == category)]
     if len(view.index) == 0:
@@ -168,14 +170,14 @@ def get_pending_reschedule_age_by_category(clinic: str, category: str) -> int:
 # END get_pending_reschedule_age_by_category
 
 
-# Pending Acceptance Measures
-
-
-def get_pending_acceptance_data(referral_df: DataFrame) -> tuple[DataFrame, DataFrame]:
-    # Returns the pending acceptance referral data.  All data represents referrals sent at 
-    # any time in the past and still in a pending acceptance status. 
-    #   referral_df: The pandas dataframe with the master set of referral data 
-    #   returns: 1) a dataframe on pending acceptance age distributions, 2) a dataframe of sub-status distributions
+def _calculate_pending_acceptance_measures(referral_df: DataFrame) -> tuple[DataFrame, DataFrame]:
+    """
+    Calculates measures of referral time waiting for referrals currently pending acceptance.
+    :param referral_df: The master DataFrame of referral source data
+    :return: Returns a tuple of two DataFrames
+        - A DataFrame of referral counts by age category on hold
+        - A DataFrame of referral counts by hold reason
+    """
 
     # Create sliced views of data for the on hold or pending statuses
     pending_df = referral_df.loc[(referral_df['Referral Status'] == 'Pending Acceptance')].copy()
@@ -196,15 +198,12 @@ def get_pending_acceptance_data(referral_df: DataFrame) -> tuple[DataFrame, Data
         .reset_index()
     
     return age_distribution_df, reason_distribution_df  
-# END get_pending_acceptance_data
+# END calculate_pending_acceptance_measures
 
 
 def get_counts_by_pending_acceptance_sub_status(clinic: str) -> DataFrame:
-    # Returns the pending acceptance sub-status counts for a clinic.  All data represents referrals sent at 
-    # any time in the past and still in a pending acceptance status. 
-    #   report_clinic: The name of a clinic to return data for
-    #   returns: A dataframe of sub-status distributions
-    df = acceptance_status_df.loc[(acceptance_status_df['Clinic'] == clinic)].copy()
+    """Returns a DataFrame of current pending acceptance referral counts by queue sub-status for the given clinic."""
+    df = _acceptance_status_df.loc[(_acceptance_status_df['Clinic'] == clinic)].copy()
     df['Referral Sub-Status'] = (
         df['Referral Sub-Status'].str.replace('Call Patient to Schedule Appointment',
                                               'Call Patient to Schedule'))
@@ -212,21 +211,10 @@ def get_counts_by_pending_acceptance_sub_status(clinic: str) -> DataFrame:
 # END get_counts_by_pending_acceptance_sub_status
 
 
-def get_pending_acceptance_sub_status_list(clinic: str) -> list[str]:
-    # Returns the pending acceptance sub-statuses used by a clinic as a list.  All data represents referrals sent at 
-    # any time in the past and still in a pending acceptance status. 
-    #   report_clinic: The name of a clinic to return data for
-    #   returns: A list of sub-statuses
-    return acceptance_status_df.loc[(acceptance_status_df['Clinic'] == clinic)]['Referral Sub-Status'].tolist()
-# END get_pending_acceptance_sub_status_list
-
-
 def get_pending_acceptance_age_by_category(clinic: str, category: str) -> int:
-    # Returns the pending acceptance age count for a clinic and category combination 
-    #   report_clinic: The name of the clinic being measured
-    #   category: The category value to measure
+    """Returns the count of pending acceptance referrals currently in an age category for the given clinic."""
 
-    df = acceptance_ages_df
+    df = _acceptance_ages_df
     view = df.loc[(df['Clinic'] == clinic)
                   & (df['Age Category Pending Acceptance'] == category)]
     if len(view.index) == 0:
@@ -236,14 +224,14 @@ def get_pending_acceptance_age_by_category(clinic: str, category: str) -> int:
 # END get_pending_acceptance_age_by_category
 
 
-# Accepted Status Measures
-
-
-def get_accepted_status_data(referral_df: DataFrame) -> tuple[DataFrame, DataFrame]:
-    # Returns the accepted referral data.  All data represents referrals sent at 
-    # any time in the past and still in accepted status. 
-    #   referral_df: The pandas dataframe with the master set of referral data 
-    #   returns: 1) a dataframe on pending acceptance age distributions, 2) a dataframe of sub-status distributions
+def _calculate_accepted_status_measures(referral_df: DataFrame) -> tuple[DataFrame, DataFrame]:
+    """
+    Calculates measures of referral time waiting for referrals currently accepted.
+    :param referral_df: The master DataFrame of referral source data
+    :return: Returns a tuple of two DataFrames
+        - A DataFrame of referral counts by age category on hold
+        - A DataFrame of referral counts by hold reason
+    """
 
     # Create sliced views of data for the on hold or pending statuses
     pending_df = referral_df.loc[(referral_df['Referral Status'] == 'Accepted')].copy()
@@ -265,15 +253,12 @@ def get_accepted_status_data(referral_df: DataFrame) -> tuple[DataFrame, DataFra
         .reset_index()
     
     return age_distribution_df, reason_distribution_df  
-# End get_accepted_status_data
+# END calculate_accepted_status_measures
 
 
 def get_counts_by_accepted_referral_sub_status(clinic: str) -> DataFrame:
-    # Returns the accepted sub-status counts for a clinic.  All data represents referrals sent at 
-    # any time in the past and still in an accepted status. 
-    #   report_clinic: The name of a clinic to return data for
-    #   returns: A dataframe of sub-status distributions
-    df = accepted_status_df.loc[(accepted_status_df['Clinic'] == clinic)].copy()
+    """Returns a DataFrame of current accepted stats referral counts by queue sub-status for the given clinic."""
+    df = _accepted_status_df.loc[(_accepted_status_df['Clinic'] == clinic)].copy()
     df['Referral Sub-Status'] = (
         df['Referral Sub-Status'].str.replace('Call Patient to Schedule Appointment',
                                               'Call Patient to Schedule'))
@@ -281,21 +266,10 @@ def get_counts_by_accepted_referral_sub_status(clinic: str) -> DataFrame:
 # End get_counts_by_accepted_referral_sub_status
 
 
-def get_accepted_referral_sub_status_list(clinic: str) -> list[str]:
-    # Returns the accepted sub-statuses used by a clinic as a list.  All data represents referrals sent at 
-    # any time in the past and still in an accepted status. 
-    #   report_clinic: The name of a clinic to return data for
-    #   returns: A list of sub-statuses
-    return accepted_status_df.loc[(accepted_status_df['Clinic'] == clinic)]['Referral Sub-Status'].tolist()
-# End get_accepted_referral_sub_status_list
-
-
 def get_accepted_referral_age_by_category(clinic: str, category: str) -> int:
-    # Returns the accepted age count for a clinic and category combination 
-    #   report_clinic: The name of the clinic being measured
-    #   category: The category value to measure
+    """Returns the count of accepted referrals currently in an age category for the given clinic."""
 
-    df = accepted_ages_df
+    df = _accepted_ages_df
     view = df.loc[(df['Clinic'] == clinic)
                   & (df['Age Category to Seen'] == category)]
     if len(view.index) == 0:
@@ -307,12 +281,13 @@ def get_accepted_referral_age_by_category(clinic: str, category: str) -> int:
 
 # MAIN
 
+print('Calculating pending time measures...')
 
-last_month = datetime.combine(AS_OF_DATE.replace(day=1).date(), datetime.min.time()) + relativedelta(months=-1)
+last_month = datetime.combine(_AS_OF_DATE.replace(day=1).date(), datetime.min.time()) + relativedelta(months=-1)
 
-on_hold_ages_df, on_hold_reasons_df = get_on_hold_data(r.referral_df)
-reschedule_ages_df, reschedule_status_df = get_pending_reschedule_data(r.referral_df)
-acceptance_ages_df, acceptance_status_df = get_pending_acceptance_data(r.referral_df)
-accepted_ages_df, accepted_status_df = get_accepted_status_data(r.referral_df)
+_on_hold_ages_df, _on_hold_reasons_df = _calculate_on_hold_measures(r.referral_df)
+_reschedule_ages_df, _reschedule_status_df = _calculate_pending_reschedule_measures(r.referral_df)
+_acceptance_ages_df, _acceptance_status_df = _calculate_pending_acceptance_measures(r.referral_df)
+_accepted_ages_df, _accepted_status_df = _calculate_accepted_status_measures(r.referral_df)
 
-print('Holds and pending loaded')
+print('Pending time measures calculated')

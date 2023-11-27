@@ -18,8 +18,8 @@ from bokeh.core.property.vectorization import Field
 
 from datetime import date, datetime
 
-import model.WaitTimes as wt
-import model.Pending as p
+import model.ProcessTime as wt
+import model.PendingTime as p
 import app.common as v
 import app.plot.AgeDistributionPlot as adp
 import app.plot.CategoryBarsPlot as cbp
@@ -77,17 +77,7 @@ class PendingAgeDistributionPlot(adp.AgeDistributionPlot):
         # Build list of distribution counts in same order as categories
         all_counts = []
         for category in self.categories:
-            if self.category_measure == 'get_on_hold_age_by_category':
-                category_count = p.get_on_hold_age_by_category(clinic, category)
-            elif self.category_measure == 'get_pending_reschedule_age_by_category':
-                category_count = p.get_pending_reschedule_age_by_category(clinic, category)
-            elif self.category_measure == 'get_pending_acceptance_age_by_category':
-                category_count = p.get_pending_acceptance_age_by_category(clinic, category)
-            elif self.category_measure == 'get_accepted_referral_age_by_category':
-                category_count = p.get_accepted_referral_age_by_category(clinic, category)
-            else:
-                category_count = 0
-            all_counts.append(category_count)
+            all_counts.append(p.get_count_by_age_category(clinic, self.category_measure, category))
 
         # Create a dataframe with the referral distribution data
         self.distribution_data = {'category': self.categories, 'referral_count': all_counts}
