@@ -38,7 +38,7 @@ class RoutinePerformanceApp:
     # Class level properties
 
     # Routine referral performance data pre-sorted by clinic name
-    clinics = wt.CLINIC_MEASURES[wt.last_month].copy()
+    clinics = wt.clinic_measures[wt.last_month].copy()
     clinics.sort_values(by='Clinic', ascending=True, inplace=True)
     clinics.reset_index(drop=True, inplace=True)
     clinics = clinics.loc[clinics['Clinic'] != '*ALL*']

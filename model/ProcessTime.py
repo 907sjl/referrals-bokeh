@@ -1,7 +1,22 @@
 """
-WaitTimes.py
-Class that represents wait times for referrals to be seen.
+ProcessTime.py
+Provides data for process aim performance and process timing for conversion of referrals into attended appointments
 https://907sjl.github.io/
+
+Top-Level Variables:
+    last_month - The first day of the previous month at time 00:00:00
+    clinic_measures[month] - Calculated measurement data by month by clinic
+    distribution_data[month] - Calculated counts by category by month and clinic
+
+Functions:
+    get_overall_measure - Returns a measure value for the given month across all clinics regardless of datatype
+    get_overall_rate_measure - Returns a float measure value for the given month across all clinics
+    get_overall_count_measure - Returns an integer measure value for the given month across all clinics
+    get_clinic_measure - Returns a measure value for the given clinic and month regardless of datatype
+    get_clinic_rate_measure - Returns a float measure value for the given clinic and month
+    get_clinic_count_measure - Returns an integer measure value for the given clinic and month
+    get_clinics - Returns a list of unique clinic names
+    get_clinic_distribution_count - Returns the distribution count for a clinic, category, and bin name combination
 """
 
 import pandas as pd
@@ -13,13 +28,12 @@ from dateutil.relativedelta import relativedelta
 
 import model.source.Referrals as r
 
-print('Loading wait times data set...')
 
 # Effective as-of date for data
-AS_OF_DATE = datetime(2023, 3, 1)
+_AS_OF_DATE = datetime(2023, 3, 1)
 
 # Configurations to auto-calculate measures dependent on other measures
-DEPENDENT_VARIANCES = [
+_DEPENDENT_VARIANCES = [
     {'measure': 'Var MOV91 Pct Routine Referrals Seen in 30d',
      'value': 'MOV28 Pct Routine Referrals Seen in 30d',
      'standard': 'MOV91 Pct Routine Referrals Seen in 30d',
@@ -101,7 +115,7 @@ DEPENDENT_VARIANCES = [
      'standard': 'MOV364 Median Days until Scheduled',
      'is-percent': True}]
 
-VARIANCE_CATEGORIES = [
+_VARIANCE_CATEGORIES = [
     {'category': 'Routine Performance vs. Target',
      'near-term': 'Var Target MOV91 Pct Routine Referrals Seen in 30d',
      'mid-term': 'Var Target MOV182 Pct Routine Referrals Seen in 30d',
@@ -151,18 +165,19 @@ VARIANCE_CATEGORIES = [
                 100: 'Falling',
                 0: 'Falling'}}]
 
+
 # Memory resident storage for monthly process measurements
-CLINIC_MEASURES = {}
-DISTRIBUTION_COUNTS = {}
+clinic_measures = {}
+distribution_data = {}
 
 
-def calculate_measures_after_5_days(referrals_df: DataFrame,
-                                    clinics_df: DataFrame,
-                                    start_date: datetime,
-                                    end_date: datetime,
-                                    prefix: str = '') -> DataFrame:
+def _calculate_measures_after_5_days(referrals_df: DataFrame,
+                                     clinics_df: DataFrame,
+                                     start_date: datetime,
+                                     end_date: datetime,
+                                     prefix: str = '') -> DataFrame:
     """
-    Calculates measures of referral processing using a 30 day lookback.
+    Calculates measures of referral processing using a 5 day lookback.
     :param referrals_df: a dataframe of referrals
     :param clinics_df: a dataframe of clinic names to calculate measures for
     :param start_date: the first date in the period
@@ -330,10 +345,10 @@ def calculate_measures_after_5_days(referrals_df: DataFrame,
 # END calculate_measures_after_5_days
 
 
-def calculate_distributions_after_90_days(referrals_df: DataFrame,
-                                          clinics_df: DataFrame,
-                                          start_date: datetime,
-                                          end_date: datetime) -> DataFrame:
+def _calculate_distributions_after_90_days(referrals_df: DataFrame,
+                                           clinics_df: DataFrame,
+                                           start_date: datetime,
+                                           end_date: datetime) -> DataFrame:
     """
     Calculates measures of referral processing using a 90 day lookback.
     :param referrals_df: a dataframe of referrals
@@ -364,11 +379,11 @@ def calculate_distributions_after_90_days(referrals_df: DataFrame,
 # END calculate_distributions_after_90_days
 
 
-def calculate_measures_after_90_days(referrals_df: DataFrame,
-                                     clinics_df: DataFrame,
-                                     start_date: datetime,
-                                     end_date: datetime,
-                                     prefix: str = '') -> DataFrame:
+def _calculate_measures_after_90_days(referrals_df: DataFrame,
+                                      clinics_df: DataFrame,
+                                      start_date: datetime,
+                                      end_date: datetime,
+                                      prefix: str = '') -> DataFrame:
     """
     Calculates measures of referral processing using a 90 day lookback.
     :param referrals_df: a dataframe of referrals
@@ -578,11 +593,11 @@ def calculate_measures_after_90_days(referrals_df: DataFrame,
 # END calculate_measures_after_90_days
 
 
-def calculate_measures_after_30_days(referrals_df: DataFrame,
-                                     clinics_df: DataFrame,
-                                     start_date: datetime,
-                                     end_date: datetime,
-                                     prefix: str = '') -> DataFrame:
+def _calculate_measures_after_30_days(referrals_df: DataFrame,
+                                      clinics_df: DataFrame,
+                                      start_date: datetime,
+                                      end_date: datetime,
+                                      prefix: str = '') -> DataFrame:
     """
     Calculates measures of referral processing using a 30 day lookback.
     :param referrals_df: a dataframe of referrals
@@ -749,8 +764,8 @@ def calculate_measures_after_30_days(referrals_df: DataFrame,
 # END calculate_measures_after_30_days
 
 
-def calculate_process_measures_for_month(referral_df: DataFrame,
-                                         report_month: datetime) -> (DataFrame, DataFrame):
+def _calculate_process_measures_for_month(referral_df: DataFrame,
+                                          report_month: datetime) -> (DataFrame, DataFrame):
     """
     Returns the wait time data for one reporting month.  A reporting month includes
     measure data that looks back the appropriate amount of time for each measure.
@@ -773,72 +788,72 @@ def calculate_process_measures_for_month(referral_df: DataFrame,
         pd.concat([pd.DataFrame({'Clinic': '*ALL*'}, index=[0]), process_measures_df]).reset_index(drop=True))
 
     # Calculate measures of referral processing that use different lookback periods of time
-    after_5d_df = calculate_measures_after_5_days(referral_df, process_measures_df, report_month, next_month)
-    after_5d_m28_df = calculate_measures_after_5_days(referral_df,
-                                                      process_measures_df,
-                                                      moving_28_day_start,
-                                                      next_month,
-                                                      'MOV28 ')
-    after_5d_m91_df = calculate_measures_after_5_days(referral_df,
-                                                      process_measures_df,
-                                                      moving_91_day_start,
-                                                      next_month,
-                                                      'MOV91 ')
-    after_5d_m182_df = calculate_measures_after_5_days(referral_df,
+    after_5d_df = _calculate_measures_after_5_days(referral_df, process_measures_df, report_month, next_month)
+    after_5d_m28_df = _calculate_measures_after_5_days(referral_df,
                                                        process_measures_df,
-                                                       moving_182_day_start,
+                                                       moving_28_day_start,
                                                        next_month,
-                                                       'MOV182 ')
-    after_5d_m364_df = calculate_measures_after_5_days(referral_df,
+                                                       'MOV28 ')
+    after_5d_m91_df = _calculate_measures_after_5_days(referral_df,
                                                        process_measures_df,
-                                                       moving_364_day_start,
+                                                       moving_91_day_start,
                                                        next_month,
-                                                       'MOV364 ')
-    after_30d_df = calculate_measures_after_30_days(referral_df, process_measures_df, report_month, next_month)
-    after_30d_m28_df = calculate_measures_after_30_days(referral_df,
+                                                       'MOV91 ')
+    after_5d_m182_df = _calculate_measures_after_5_days(referral_df,
                                                         process_measures_df,
-                                                        moving_28_day_start,
+                                                        moving_182_day_start,
                                                         next_month,
-                                                        'MOV28 ')
-    after_30d_m91_df = calculate_measures_after_30_days(referral_df,
+                                                        'MOV182 ')
+    after_5d_m364_df = _calculate_measures_after_5_days(referral_df,
                                                         process_measures_df,
-                                                        moving_91_day_start,
+                                                        moving_364_day_start,
                                                         next_month,
-                                                        'MOV91 ')
-    after_30d_m182_df = calculate_measures_after_30_days(referral_df,
+                                                        'MOV364 ')
+    after_30d_df = _calculate_measures_after_30_days(referral_df, process_measures_df, report_month, next_month)
+    after_30d_m28_df = _calculate_measures_after_30_days(referral_df,
                                                          process_measures_df,
-                                                         moving_182_day_start,
+                                                         moving_28_day_start,
                                                          next_month,
-                                                         'MOV182 ')
-    after_30d_m364_df = calculate_measures_after_30_days(referral_df,
+                                                         'MOV28 ')
+    after_30d_m91_df = _calculate_measures_after_30_days(referral_df,
                                                          process_measures_df,
-                                                         moving_364_day_start,
+                                                         moving_91_day_start,
                                                          next_month,
-                                                         'MOV364 ')
+                                                         'MOV91 ')
+    after_30d_m182_df = _calculate_measures_after_30_days(referral_df,
+                                                          process_measures_df,
+                                                          moving_182_day_start,
+                                                          next_month,
+                                                          'MOV182 ')
+    after_30d_m364_df = _calculate_measures_after_30_days(referral_df,
+                                                          process_measures_df,
+                                                          moving_364_day_start,
+                                                          next_month,
+                                                          'MOV364 ')
     after_90d_df = (
-        calculate_measures_after_90_days(referral_df, process_measures_df, report_month, next_month))
-    after_90d_m28_df = calculate_measures_after_90_days(referral_df,
-                                                        process_measures_df,
-                                                        moving_28_day_start,
-                                                        next_month,
-                                                        'MOV28 ')
-    after_90d_m91_df = calculate_measures_after_90_days(referral_df,
-                                                        process_measures_df,
-                                                        moving_91_day_start,
-                                                        next_month,
-                                                        'MOV91 ')
-    after_90d_m182_df = calculate_measures_after_90_days(referral_df,
+        _calculate_measures_after_90_days(referral_df, process_measures_df, report_month, next_month))
+    after_90d_m28_df = _calculate_measures_after_90_days(referral_df,
                                                          process_measures_df,
-                                                         moving_182_day_start,
+                                                         moving_28_day_start,
                                                          next_month,
-                                                         'MOV182 ')
-    after_90d_m364_df = calculate_measures_after_90_days(referral_df,
+                                                         'MOV28 ')
+    after_90d_m91_df = _calculate_measures_after_90_days(referral_df,
                                                          process_measures_df,
-                                                         moving_364_day_start,
+                                                         moving_91_day_start,
                                                          next_month,
-                                                         'MOV364 ')
+                                                         'MOV91 ')
+    after_90d_m182_df = _calculate_measures_after_90_days(referral_df,
+                                                          process_measures_df,
+                                                          moving_182_day_start,
+                                                          next_month,
+                                                          'MOV182 ')
+    after_90d_m364_df = _calculate_measures_after_90_days(referral_df,
+                                                          process_measures_df,
+                                                          moving_364_day_start,
+                                                          next_month,
+                                                          'MOV364 ')
     after_90d_distribution_df = (
-        calculate_distributions_after_90_days(referral_df, process_measures_df, report_month, next_month))
+        _calculate_distributions_after_90_days(referral_df, process_measures_df, report_month, next_month))
 
     # Create one data set of referral performance measures by clinic
     process_measures_df = pd.merge(process_measures_df, after_5d_df, how='left', on=['Clinic'])
@@ -871,22 +886,26 @@ def calculate_process_measures_for_month(referral_df: DataFrame,
 
 
 def get_overall_measure(report_month: datetime, measure: str) -> object:
+    """Returns the value of the given measure for the given month across all clinics regardless of datatype."""
     return get_clinic_measure(report_month, '*ALL*', measure)
 # END get_overall_measure
 
 
 def get_overall_rate_measure(report_month: datetime, measure: str) -> float:
+    """Returns a floating point value for the given measure for the given month across all clinics."""
     return get_clinic_rate_measure(report_month, '*ALL*', measure)
 # END get_overall_rate_measure
 
 
 def get_overall_count_measure(report_month: datetime, measure: str) -> int:
+    """Returns an integer count value for the given measure for the given month across all clinics."""
     return get_clinic_count_measure(report_month, '*ALL*', measure)
 # END get_overall_count_measure
 
 
 def get_clinic_measure(report_month: datetime, clinic: str, measure: str) -> object:
-    df = CLINIC_MEASURES[report_month]
+    """Returns the value of the given measure for the given month for a given clinic regardless of datatype."""
+    df = clinic_measures[report_month]
     view = df.loc[(df['Clinic'] == clinic)]
     if view.empty:
         return 0
@@ -906,7 +925,7 @@ def get_clinic_rate_measure(report_month: datetime, clinic: str, measure: str, m
     :return: the measure value as a float, or 0.0 if measure is not numeric
     """
     offset_month = report_month + relativedelta(months=month_offset)
-    df = CLINIC_MEASURES[offset_month]
+    df = clinic_measures[offset_month]
     if measure in df.select_dtypes(include=['int64', 'int32', 'float64']).columns:
         view = df.loc[(df['Clinic'] == clinic)]
         if view.empty:
@@ -927,7 +946,7 @@ def get_clinic_count_measure(report_month: datetime, clinic: str, measure: str, 
     :return: the measure value as an int, or 0 if measure is not numeric
     """
     offset_month = report_month + relativedelta(months=month_offset)
-    df = CLINIC_MEASURES[offset_month]
+    df = clinic_measures[offset_month]
     if measure in df.select_dtypes(include=['int64', 'int32', 'float64']).columns:
         view = df.loc[(df['Clinic'] == clinic)]
         if view.empty:
@@ -943,7 +962,7 @@ def get_clinics(report_month: datetime) -> list[str]:
     :param report_month: month being measured
     :return: a list of unique clinic names
     """
-    df = CLINIC_MEASURES[report_month]
+    df = clinic_measures[report_month]
     return df.loc[(df['Clinic'] != '*ALL*'), 'Clinic'].unique().tolist()[::1]
 # END get_clinics
 
@@ -963,7 +982,7 @@ def get_clinic_distribution_count(report_month: datetime,
     :return: a count of referrals
     """
 
-    df = DISTRIBUTION_COUNTS[report_month]
+    df = distribution_data[report_month]
     view = df.loc[(df['Clinic'] == clinic)
                   & (df['Referral Priority'] == priority)
                   & (df[measure] == category)]
@@ -974,7 +993,7 @@ def get_clinic_distribution_count(report_month: datetime,
 # END get_clinic_distribution_count
 
 
-def up_or_down(x: float) -> str:
+def _up_or_down(x: float) -> str:
     """
     Helper function to return a directional indicator based on the given
     number being positive or negative.  Applied to Pandas series.
@@ -990,8 +1009,8 @@ def up_or_down(x: float) -> str:
 # END up_or_down
 
 
-def calculate_dependent_variances(curr_month_df: DataFrame,
-                                  measures: list[dict]) -> DataFrame:
+def _calculate_dependent_variances(curr_month_df: DataFrame,
+                                   measures: list[dict]) -> DataFrame:
     """
     Calculates variances that are dependent upon measure calculations or rolling sums.
     :param curr_month_df: process measure data for the current month
@@ -1002,7 +1021,7 @@ def calculate_dependent_variances(curr_month_df: DataFrame,
     for measure in measures:
         variances = curr_month_df[measure['value']] - curr_month_df[measure['standard']]
 
-        directions = variances.apply(up_or_down)
+        directions = variances.apply(_up_or_down)
 
         curr_month_df[measure['measure']] = variances
         curr_month_df['Dir ' + measure['measure']] = directions
@@ -1013,7 +1032,7 @@ def calculate_dependent_variances(curr_month_df: DataFrame,
 # END calculate_dependent_variances
 
 
-def add_targets(curr_month_df: DataFrame) -> DataFrame:
+def _add_targets(curr_month_df: DataFrame) -> DataFrame:
     """
     Adds columns with measure targets to the monthly process measurement data.
     :param curr_month_df: process measure data for the current month
@@ -1025,7 +1044,7 @@ def add_targets(curr_month_df: DataFrame) -> DataFrame:
 # END add_targets
 
 
-def calculate_variance_categories(curr_month_df: DataFrame, categories: list[dict]) -> DataFrame:
+def _calculate_variance_categories(curr_month_df: DataFrame, categories: list[dict]) -> DataFrame:
     """
     Tags each clinic with performance and improvement categories based on near term,
     midterm, and long term variances against targets and against historical rates.
@@ -1051,30 +1070,31 @@ def calculate_variance_categories(curr_month_df: DataFrame, categories: list[dic
 # END calculate_variance_categories
 
 
+def _calculate_process_time_measures() -> None:
+    first_month = datetime.combine(_AS_OF_DATE.replace(day=1).date(), datetime.min.time()) + relativedelta(months=-12)
+
+    for iter_month in range(12):
+        curr_month = first_month + relativedelta(months=iter_month)
+        print('Calculating clinic process measures for ' + curr_month.strftime('%Y-%m-%d'))
+
+        # Calculate measure values for this month
+        curr_month_clinic_df, curr_month_distributions_df = (
+            _calculate_process_measures_for_month(r.referral_df, curr_month))
+        curr_month_clinic_df = _add_targets(curr_month_clinic_df)
+        curr_month_clinic_df = _calculate_dependent_variances(curr_month_clinic_df, _DEPENDENT_VARIANCES)
+        curr_month_clinic_df = _calculate_variance_categories(curr_month_clinic_df, _VARIANCE_CATEGORIES)
+
+        # Keep the 12 months of data resident in memory for requests from Bokeh
+        clinic_measures[curr_month] = curr_month_clinic_df
+        distribution_data[curr_month] = curr_month_distributions_df
+# END _calculate_process_time_measures
+
+
 # MAIN
 
-last_month = datetime.combine(AS_OF_DATE.replace(day=1).date(), datetime.min.time()) + relativedelta(months=-1)
-first_month = datetime.combine(AS_OF_DATE.replace(day=1).date(), datetime.min.time()) + relativedelta(months=-12)
+print('Calculating clinic processing time measures...')
 
-# Create dictionary for months and wait time measures starting with last month
-# Have 12 months of data readily available
-curr_month_clinic_df = pd.DataFrame()
-for iter_month in range(12):
-    curr_month = first_month + relativedelta(months=iter_month)
-    print('Calculating clinic process measures for ' + curr_month.strftime('%Y-%m-%d'))
+last_month = datetime.combine(_AS_OF_DATE.replace(day=1).date(), datetime.min.time()) + relativedelta(months=-1)
+_calculate_process_time_measures()
 
-    # Calculate measure values for this month
-    curr_month_clinic_df, curr_month_distributions_df = (
-        calculate_process_measures_for_month(r.referral_df, curr_month))
-    curr_month_clinic_df = add_targets(curr_month_clinic_df)
-    curr_month_clinic_df = calculate_dependent_variances(curr_month_clinic_df, DEPENDENT_VARIANCES)
-    curr_month_clinic_df = calculate_variance_categories(curr_month_clinic_df, VARIANCE_CATEGORIES)
-
-    # Keep the 12 months of data resident in memory for requests from Bokeh
-    CLINIC_MEASURES[curr_month] = curr_month_clinic_df
-    DISTRIBUTION_COUNTS[curr_month] = curr_month_distributions_df
-
-urgent_seen_rate_target = 0.5
-routine_seen_rate_target = 0.5
-
-print('Process measures calculated')
+print('Clinic processing time measures calculated')
