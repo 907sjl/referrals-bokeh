@@ -43,7 +43,7 @@ class ClinicProcessApp:
     Public Methods:
         get_app_title - Returns the application title prefixed with the selected clinic name
         set_clinic - Sets the currently selected clinic
-        insert_clinic_process_data - Sequences the data collection and rendering in the application document
+        insert_clinic_process_visuals - Sequences the data collection and rendering in the application document
     """
 
     # Class level properties
@@ -306,61 +306,24 @@ class ClinicProcessApp:
         """Returns the application title prefixed with the selected clinic name."""
         return self.clinic + ' ' + self.app_title
 
-    def _add_referral_volume_plots(self, month: datetime):
-        """
-        Add plots for clinic referral volume measures to a Bokeh document.
-        :param month: month of performance to visualize
-        :return: none
-        """
-
-        # Data to calculate volume measures after 5 days
-        self._urgent_volume_plot.load_clinic_data(month, self.clinic)
-        self._urgent_volume_plot.create_plot_data()
+    def _add_plots(self) -> None:
+        """Adds plots for clinic referral process measures to the Bokeh document."""
         self._urgent_volume_plot.add_plot()
-
-        # Data to calculate volume measures after 30 days
-        self._routine_volume_plot.load_clinic_data(month, self.clinic)
-        self._routine_volume_plot.create_plot_data()
         self._routine_volume_plot.add_plot()
-
-        # Data to calculate volume measures after 90 days
-        self._all_volume_plot.load_clinic_data(month, self.clinic)
-        self._all_volume_plot.create_plot_data()
         self._all_volume_plot.add_plot()
-
-        # Data to calculate volume of referrals by process milestone after 90 days
-        self._process_volume_plot.load_clinic_data(month, self.clinic)
-        self._process_volume_plot.create_plot_data()
         self._process_volume_plot.add_plot()
+        self._urgent_seen_ratio_plot.add_plot()
+        self._routine_seen_ratio_plot.add_plot()
+        self._all_seen_ratio_plot.add_plot()
+        self._urgent_aim_plot.add_plot()
+        self._routine_aim_plot.add_plot()
+        self._seen_histogram_plot.add_plot()
+    # END add_plots
 
-        # Dates of urgent referrals counted
-        urgent_first_date = month + relativedelta(days=-5)
-        urgent_last_date = month + relativedelta(months=1) + relativedelta(days=-6)
-        routine_first_date = month + relativedelta(days=-30)
-        routine_last_date = month + relativedelta(months=1) + relativedelta(days=-31)
-        first_date = month + relativedelta(days=-90)
-        last_date = month + relativedelta(months=1) + relativedelta(days=-91)
-
-        # Data driven labels
-        self._urgent_min_date_plot.\
-            set_label_text(f'{urgent_first_date.month}/{urgent_first_date.day}/{urgent_first_date:%y}')
-        self._urgent_max_date_plot.\
-            set_label_text(f'{urgent_last_date.month}/{urgent_last_date.day}/{urgent_last_date:%y}')
-        self._routine_min_date_plot.\
-            set_label_text(f'{routine_first_date.month}/{routine_first_date.day}/{routine_first_date:%y}')
-        self._routine_max_date_plot.\
-            set_label_text(f'{routine_last_date.month}/{routine_last_date.day}/{routine_last_date:%y}')
-        self._all_min_date_plot.\
-            set_label_text(f'{first_date.month}/{first_date.day}/{first_date:%y}')
-        self._all_max_date_plot.\
-            set_label_text(f'{last_date.month}/{last_date.day}/{last_date:%y}')
-    # END add_referral_volume_plots
-
-    def _update_referral_volume_plots(self, month: datetime):
+    def _collect_referral_volume_plot_data(self, month: datetime) -> None:
         """
-        Update plots for clinic referral volume measures in a Bokeh document.
+        Collects plot data for clinic referral volume measures in a Bokeh document.
         :param month: month of performance to visualize
-        :return: none
         """
 
         # Data to calculate volume measures after 5 days
@@ -402,34 +365,10 @@ class ClinicProcessApp:
             set_label_text(f'{last_date.month}/{last_date.day}/{last_date:%y}')
     # END update_referral_volume_plots
 
-    def _add_seen_ratio_plots(self, month: datetime):
+    def _collect_seen_ratio_plot_data(self, month: datetime) -> None:
         """
-        Add plots for clinic referral seen ratios to a Bokeh document.
+        Collects plot data for clinic referral seen ratios to a Bokeh document.
         :param month: month of data to visualize
-        :return: none
-        """
-
-        # Data to calculate seen ratio measures after 5 days
-        self._urgent_seen_ratio_plot.load_clinic_data(month, self.clinic)
-        self._urgent_seen_ratio_plot.create_plot_data()
-        self._urgent_seen_ratio_plot.add_plot()
-
-        # Data to calculate seen ratio measures after 30 days
-        self._routine_seen_ratio_plot.load_clinic_data(month, self.clinic)
-        self._routine_seen_ratio_plot.create_plot_data()
-        self._routine_seen_ratio_plot.add_plot()
-
-        # Data to calculate seen ratio measures after 90 days
-        self._all_seen_ratio_plot.load_clinic_data(month, self.clinic)
-        self._all_seen_ratio_plot.create_plot_data()
-        self._all_seen_ratio_plot.add_plot()
-    # END add_seen_ratio_plots
-
-    def _update_seen_ratio_plots(self, month: datetime):
-        """
-        Updates existing plots for clinic referral seen ratios to a Bokeh document.
-        :param month: month of data to visualize
-        :return: none
         """
 
         # Data to calculate seen ratio measures after 5 days
@@ -445,126 +384,11 @@ class ClinicProcessApp:
         self._all_seen_ratio_plot.create_plot_data()
     # END update_seen_ratio_plots
 
-    def _add_urgent_referral_process_aim(self, month: datetime):
-
-        self._urgent_aim_plot.load_clinic_data(month, self.clinic)
-        self._urgent_aim_plot.create_plot_data()
-        self._urgent_aim_plot.add_plot()
-
-        urgent_ratio_3_month = (
-            v.half_up_int(wt.get_clinic_rate_measure(month,
-                                                     self.clinic,
-                                                     'MOV91 Pct Urgent Referrals Seen in 5d')))
-        urgent_variance_3_month = (
-            v.half_up_int(wt.get_clinic_rate_measure(month,
-                                                     self.clinic,
-                                                     'Var Target MOV91 Pct Urgent Referrals Seen in 5d')))
-        urgent_direction_3_month = (
-            wt.get_clinic_measure(month,
-                                  self.clinic,
-                                  'Dir Var Target MOV91 Pct Urgent Referrals Seen in 5d'))
-        urgent_improvement_3_month = (
-            v.half_up_int(wt.get_clinic_rate_measure(month,
-                                                     self.clinic,
-                                                     'Var MOV91 Pct Urgent Referrals Seen in 5d')))
-        urgent_improvement_dir_3_month = (
-            wt.get_clinic_measure(month,
-                                  self.clinic,
-                                  'Dir Var MOV91 Pct Urgent Referrals Seen in 5d'))
-
-        urgent_ratio_6_month = (
-            v.half_up_int(wt.get_clinic_rate_measure(month,
-                                                     self.clinic,
-                                                     'MOV182 Pct Urgent Referrals Seen in 5d')))
-        urgent_variance_6_month = (
-            v.half_up_int(wt.get_clinic_rate_measure(month,
-                                                     self.clinic,
-                                                     'Var Target MOV182 Pct Urgent Referrals Seen in 5d')))
-        urgent_direction_6_month = (
-            wt.get_clinic_measure(month,
-                                  self.clinic,
-                                  'Dir Var Target MOV182 Pct Urgent Referrals Seen in 5d'))
-        urgent_improvement_6_month = (
-            v.half_up_int(wt.get_clinic_rate_measure(month,
-                                                     self.clinic,
-                                                     'Var MOV182 Pct Urgent Referrals Seen in 5d')))
-        urgent_improvement_dir_6_month = (
-            wt.get_clinic_measure(month,
-                                  self.clinic,
-                                  'Dir Var MOV182 Pct Urgent Referrals Seen in 5d'))
-        urgent_ratio_12_month = (
-            v.half_up_int(wt.get_clinic_rate_measure(month,
-                                                     self.clinic,
-                                                     'MOV364 Pct Urgent Referrals Seen in 5d')))
-        urgent_variance_12_month = (
-            v.half_up_int(wt.get_clinic_rate_measure(month,
-                                                     self.clinic,
-                                                     'Var Target MOV364 Pct Urgent Referrals Seen in 5d')))
-        urgent_direction_12_month = (
-            wt.get_clinic_measure(month,
-                                  self.clinic,
-                                  'Dir Var Target MOV364 Pct Urgent Referrals Seen in 5d'))
-        urgent_improvement_12_month = (
-            v.half_up_int(wt.get_clinic_rate_measure(month,
-                                                     self.clinic,
-                                                     'Var MOV364 Pct Urgent Referrals Seen in 5d')))
-        urgent_improvement_dir_12_month = (
-            wt.get_clinic_measure(month,
-                                  self.clinic,
-                                  'Dir Var MOV364 Pct Urgent Referrals Seen in 5d'))
-
-        # Data driven labels
-        self._urgent_ratio_3_month_plot.set_label_text(str(urgent_ratio_3_month) + '%')
-        self._urgent_variance_3_month_plot.set_label_text(str(urgent_variance_3_month) + '%')
-        self._urgent_direction_3_month_plot.set_label_text(str(urgent_direction_3_month))
-        self._urgent_improvement_dir_3_month_plot.set_label_text(str(urgent_improvement_dir_3_month))
-
-        self._urgent_ratio_6_month_plot.set_label_text(str(urgent_ratio_6_month) + '%')
-        self._urgent_variance_6_month_plot.set_label_text(str(urgent_variance_6_month) + '%')
-        self._urgent_direction_6_month_plot.set_label_text(str(urgent_direction_6_month))
-        self._urgent_improvement_dir_6_month_plot.set_label_text(str(urgent_improvement_dir_6_month))
-
-        self._urgent_ratio_12_month_plot.set_label_text(str(urgent_ratio_12_month) + '%')
-        self._urgent_variance_12_month_plot.set_label_text(str(urgent_variance_12_month) + '%')
-        self._urgent_direction_12_month_plot.set_label_text(str(urgent_direction_12_month))
-        self._urgent_improvement_dir_12_month_plot.set_label_text(str(urgent_improvement_dir_12_month))
-
-        self._urgent_ratio_target_plot.set_label_text(
-            str(int(self._urgent_aim_plot.target_data['value'][0] * 100.0)) + '%')
-
-        # Data driven label styles
-        if urgent_variance_3_month < 0:
-            self._urgent_direction_3_month_plot.set_label_style("table-data-direction-down")
-        else:
-            self._urgent_direction_3_month_plot.set_label_style("table-data-direction-up")
-
-        if urgent_improvement_3_month < 0:
-            self._urgent_improvement_dir_3_month_plot.set_label_style("table-data-direction-down")
-        else:
-            self._urgent_improvement_dir_3_month_plot.set_label_style("table-data-direction-up")
-
-        if urgent_variance_6_month < 0:
-            self._urgent_direction_6_month_plot.set_label_style("table-data-direction-down")
-        else:
-            self._urgent_direction_6_month_plot.set_label_style("table-data-direction-up")
-
-        if urgent_improvement_6_month < 0:
-            self._urgent_improvement_dir_6_month_plot.set_label_style("table-data-direction-down")
-        else:
-            self._urgent_improvement_dir_6_month_plot.set_label_style("table-data-direction-up")
-
-        if urgent_variance_12_month < 0:
-            self._urgent_direction_12_month_plot.set_label_style("table-data-direction-down")
-        else:
-            self._urgent_direction_12_month_plot.set_label_style("table-data-direction-up")
-
-        if urgent_improvement_12_month < 0:
-            self._urgent_improvement_dir_12_month_plot.set_label_style("table-data-direction-down")
-        else:
-            self._urgent_improvement_dir_12_month_plot.set_label_style("table-data-direction-up")
-    # END add_urgent_referral_process_aim
-
-    def _update_urgent_referral_process_aim(self, month: datetime):
+    def _collect_urgent_referral_process_aim_data(self, month: datetime) -> None:
+        """
+        Collects plot data for the clinic referral process aim for urgent referrals.
+        :param month: month of performance to visualize
+        """
         self._urgent_aim_plot.load_clinic_data(month, self.clinic)
         self._urgent_aim_plot.create_plot_data()
 
@@ -681,127 +505,11 @@ class ClinicProcessApp:
             self._urgent_improvement_dir_12_month_plot.set_label_style("table-data-direction-up")
     # END update_urgent_referral_process_aim
 
-    def _add_routine_referral_process_aim(self, month: datetime):
-
-        self._routine_aim_plot.load_clinic_data(month, self.clinic)
-        self._routine_aim_plot.create_plot_data()
-        self._routine_aim_plot.add_plot()
-
-        routine_ratio_3_month = (
-            v.half_up_int(wt.get_clinic_rate_measure(month,
-                                                     self.clinic,
-                                                     'MOV91 Pct Routine Referrals Seen in 30d')))
-        routine_variance_3_month = (
-            v.half_up_int(wt.get_clinic_rate_measure(month,
-                                                     self.clinic,
-                                                     'Var Target MOV91 Pct Routine Referrals Seen in 30d')))
-        routine_direction_3_month = (
-            wt.get_clinic_measure(month,
-                                  self.clinic,
-                                  'Dir Var Target MOV91 Pct Routine Referrals Seen in 30d'))
-        routine_improvement_3_month = (
-            v.half_up_int(wt.get_clinic_rate_measure(month,
-                                                     self.clinic,
-                                                     'Var MOV91 Pct Routine Referrals Seen in 30d')))
-        routine_improvement_dir_3_month = (
-            wt.get_clinic_measure(month,
-                                  self.clinic,
-                                  'Dir Var MOV91 Pct Routine Referrals Seen in 30d'))
-
-        routine_ratio_6_month = (
-            v.half_up_int(wt.get_clinic_rate_measure(month,
-                                                     self.clinic,
-                                                     'MOV182 Pct Routine Referrals Seen in 30d')))
-        routine_variance_6_month = (
-            v.half_up_int(wt.get_clinic_rate_measure(month,
-                                                     self.clinic,
-                                                     'Var Target MOV182 Pct Routine Referrals Seen in 30d')))
-        routine_direction_6_month = (
-            wt.get_clinic_measure(month,
-                                  self.clinic,
-                                  'Dir Var Target MOV182 Pct Routine Referrals Seen in 30d'))
-        routine_improvement_6_month = (
-            v.half_up_int(wt.get_clinic_rate_measure(month,
-                                                     self.clinic,
-                                                     'Var MOV182 Pct Routine Referrals Seen in 30d')))
-        routine_improvement_dir_6_month = (
-            wt.get_clinic_measure(month,
-                                  self.clinic,
-                                  'Dir Var MOV182 Pct Routine Referrals Seen in 30d'))
-
-        routine_ratio_12_month = (
-            v.half_up_int(wt.get_clinic_rate_measure(month,
-                                                     self.clinic,
-                                                     'MOV364 Pct Routine Referrals Seen in 30d')))
-        routine_variance_12_month = (
-            v.half_up_int(wt.get_clinic_rate_measure(month,
-                                                     self.clinic,
-                                                     'Var Target MOV364 Pct Routine Referrals Seen in 30d')))
-        routine_direction_12_month = (
-            wt.get_clinic_measure(month,
-                                  self.clinic,
-                                  'Dir Var Target MOV364 Pct Routine Referrals Seen in 30d'))
-        routine_improvement_12_month = (
-            v.half_up_int(wt.get_clinic_rate_measure(month,
-                                                     self.clinic,
-                                                     'Var MOV364 Pct Routine Referrals Seen in 30d')))
-        routine_improvement_dir_12_month = (
-            wt.get_clinic_measure(month,
-                                  self.clinic,
-                                  'Dir Var MOV364 Pct Routine Referrals Seen in 30d'))
-
-        # Data driven labels
-        self._routine_ratio_3_month_plot.set_label_text(str(routine_ratio_3_month) + '%')
-        self._routine_variance_3_month_plot.set_label_text(str(routine_variance_3_month) + '%')
-        self._routine_direction_3_month_plot.set_label_text(str(routine_direction_3_month))
-        self._routine_improvement_dir_3_month_plot.set_label_text(str(routine_improvement_dir_3_month))
-
-        self._routine_ratio_6_month_plot.set_label_text(str(routine_ratio_6_month) + '%')
-        self._routine_variance_6_month_plot.set_label_text(str(routine_variance_6_month) + '%')
-        self._routine_direction_6_month_plot.set_label_text(str(routine_direction_6_month))
-        self._routine_improvement_dir_6_month_plot.set_label_text(str(routine_improvement_dir_6_month))
-
-        self._routine_ratio_12_month_plot.set_label_text(str(routine_ratio_12_month) + '%')
-        self._routine_variance_12_month_plot.set_label_text(str(routine_variance_12_month) + '%')
-        self._routine_direction_12_month_plot.set_label_text(str(routine_direction_12_month))
-        self._routine_improvement_dir_12_month_plot.set_label_text(str(routine_improvement_dir_12_month))
-
-        self._routine_ratio_target_plot.set_label_text(
-            str(int(self._routine_aim_plot.target_data['value'][0] * 100.0)) + '%')
-
-        # Data driven label styles
-        if routine_variance_3_month < 0:
-            self._routine_direction_3_month_plot.set_label_style("table-data-direction-down")
-        else:
-            self._routine_direction_3_month_plot.set_label_style("table-data-direction-up")
-
-        if routine_improvement_3_month < 0:
-            self._routine_improvement_dir_3_month_plot.set_label_style("table-data-direction-down")
-        else:
-            self._routine_improvement_dir_3_month_plot.set_label_style("table-data-direction-up")
-
-        if routine_variance_6_month < 0:
-            self._routine_direction_6_month_plot.set_label_style("table-data-direction-down")
-        else:
-            self._routine_direction_6_month_plot.set_label_style("table-data-direction-up")
-
-        if routine_improvement_6_month < 0:
-            self._routine_improvement_dir_6_month_plot.set_label_style("table-data-direction-down")
-        else:
-            self._routine_improvement_dir_6_month_plot.set_label_style("table-data-direction-up")
-
-        if routine_variance_12_month < 0:
-            self._routine_direction_12_month_plot.set_label_style("table-data-direction-down")
-        else:
-            self._routine_direction_12_month_plot.set_label_style("table-data-direction-up")
-
-        if routine_improvement_12_month < 0:
-            self._routine_improvement_dir_12_month_plot.set_label_style("table-data-direction-down")
-        else:
-            self._routine_improvement_dir_12_month_plot.set_label_style("table-data-direction-up")
-    # END add_routine_referral_process_aim
-
-    def _update_routine_referral_process_aim(self, month: datetime):
+    def _collect_routine_referral_process_aim_data(self, month: datetime) -> None:
+        """
+        Collects plot data for the clinic referral process aim for routine referrals.
+        :param month: month of performance to visualize
+        """
         self._routine_aim_plot.load_clinic_data(month, self.clinic)
         self._routine_aim_plot.create_plot_data()
 
@@ -922,51 +630,14 @@ class ClinicProcessApp:
             self._routine_improvement_dir_12_month_plot.set_label_style("table-data-direction-up")
     # END update_routine_referral_process_aim
 
-    def _add_referral_process_measures(self, month: datetime):
-
+    def _collect_referral_process_data(self, month: datetime) -> None:
+        """
+        Collects plot data for the clinic referral process milestones for all referrals.
+        :param month: month of performance to visualize
+        """
         # Data to calculate volume measures after 5 days
         self._seen_histogram_plot.load_clinic_data(month, self.clinic)
         self._seen_histogram_plot.create_plot_data()
-        self._seen_histogram_plot.add_plot()
-
-        # Data for processing volume measures after 90 days
-        volume_values = self._process_volume_plot.volume_data['value']
-
-        # Processing rates
-        if volume_values[0] > 0:
-            ratio_accepted = volume_values[1] / volume_values[0]
-            ratio_scheduled = volume_values[2] / volume_values[0]
-            ratio_completed = volume_values[3] / volume_values[0]
-        else:
-            ratio_accepted = 0.0
-            ratio_scheduled = 0.0
-            ratio_completed = 0.0
-
-        # Processing Time
-        accepted_days = v.half_up_int(
-            wt.get_clinic_rate_measure(wt.last_month, self.clinic, 'MOV28 Median Days to Accept'))
-        scheduled_days = (
-            v.half_up_int(wt.get_clinic_rate_measure(wt.last_month, self.clinic, 'MOV28 Median Days until Scheduled')))
-        completed_days = (
-            v.half_up_int(wt.get_clinic_rate_measure(wt.last_month, self.clinic, 'MOV28 Median Days until Completed')))
-        seen_days = (
-            v.half_up_int(wt.get_clinic_rate_measure(wt.last_month, self.clinic, 'MOV28 Median Days until Seen')))
-
-        # Data driven labels
-        self._all_accepted_rate_plot.set_label_text(str(v.half_up_int(ratio_accepted * 100.0)) + '%')
-        self._all_scheduled_rate_plot.set_label_text(str(v.half_up_int(ratio_scheduled * 100.0)) + '%')
-        self._all_completed_rate_plot.set_label_text(str(v.half_up_int(ratio_completed * 100.0)) + '%')
-        self._median_days_to_accepted_plot.set_label_text(str(accepted_days))
-        self._median_days_to_scheduled_plot.set_label_text(str(scheduled_days))
-        self._median_days_to_completed_plot.set_label_text(str(completed_days))
-        self._median_days_to_seen_plot.set_label_text(str(seen_days))
-    # END add_all_referral_process_measures
-
-    def _update_referral_process_measures(self, month: datetime):
-        # Data to calculate volume measures after 5 days
-        self._seen_histogram_plot.load_clinic_data(month, self.clinic)
-        self._seen_histogram_plot.create_plot_data()
-        self._seen_histogram_plot.update_plot()
 
         # Data for processing volume measures after 90 days
         volume_values = self._process_volume_plot.volume_data['value']
@@ -1001,9 +672,15 @@ class ClinicProcessApp:
         self._median_days_to_seen_plot.set_label_text(str(seen_days))
     # END update_referral_process_measures
 
+    def _update_referral_process_plot(self) -> None:
+        """Updates plots for the clinic referral process milestones for all referrals."""
+        self._seen_histogram_plot.update_plot()
+    # END update_referral_process_plot
+
     def set_clinic(self, clinic: str) -> None:
         """Sets the currently selected clinic."""
         self.clinic = clinic
+    # END set_clinic
 
     def _clinic_selection_handler(self, attr: str, old, new) -> None:
         """
@@ -1014,15 +691,16 @@ class ClinicProcessApp:
         :param new: The new clinic value after the selection changes
         """
         self.set_clinic(new)
-        self._update_seen_ratio_plots(wt.last_month)
-        self._update_referral_volume_plots(wt.last_month)
-        self._update_urgent_referral_process_aim(wt.last_month)
-        self._update_routine_referral_process_aim(wt.last_month)
-        self._update_referral_process_measures(wt.last_month)
+        self._collect_seen_ratio_plot_data(wt.last_month)
+        self._collect_referral_volume_plot_data(wt.last_month)
+        self._update_referral_process_plot()
+        self._collect_urgent_referral_process_aim_data(wt.last_month)
+        self._collect_routine_referral_process_aim_data(wt.last_month)
+        self._collect_referral_process_data(wt.last_month)
         self._label_data_source.update_plot_data()
     # END clinic_selection_handler
 
-    def insert_clinic_process_data(self) -> None:
+    def insert_clinic_process_visuals(self) -> None:
         """
         Sequences the load of data and rendering of visuals for this Bokeh application in response
         to a new document being created for a new Bokeh session.
@@ -1033,12 +711,18 @@ class ClinicProcessApp:
         if len(clinic) > 0:
             self.clinic = clinic
 
-        self._add_referral_volume_plots(wt.last_month)
-        self._add_seen_ratio_plots(wt.last_month)
-        self._add_urgent_referral_process_aim(wt.last_month)
-        self._add_routine_referral_process_aim(wt.last_month)
-        self._add_referral_process_measures(wt.last_month)
+        # Add clinic referral process measure visuals to document
+        self._collect_referral_volume_plot_data(wt.last_month)
+        self._collect_seen_ratio_plot_data(wt.last_month)
+        self._collect_urgent_referral_process_aim_data(wt.last_month)
+        self._collect_routine_referral_process_aim_data(wt.last_month)
+        self._collect_referral_process_data(wt.last_month)
+        self._add_plots()
+
+        # Add a slicer for clinic name to document
         v.add_clinic_slicer(self.document, wt.last_month, self.clinic, self._clinic_selection_handler)
+
+        # Add data driven labels to document
         self._label_data_source.update_plot_data()
         self._label_data_source.add_plot()
 
@@ -1071,7 +755,6 @@ def clinic_process_app_handler(doc: Document) -> None:
     server application.  This handler adds content to be rendered into the application document.
     :param doc: The Bokeh document to add content to
     """
-
     process_app = ClinicProcessApp(doc)
-    process_app.insert_clinic_process_data()
+    process_app.insert_clinic_process_visuals()
 # END clinic_process_app_handler
