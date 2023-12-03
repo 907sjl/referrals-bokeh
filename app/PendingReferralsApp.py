@@ -102,7 +102,7 @@ class PendingReferralsApp:
     Public Methods:
         get_app_title - Returns the application title prefixed with the selected clinic name
         set_clinic - Sets the currently selected clinic
-        insert_pending_referrals_data - Sequences the data collection and rendering in the application document
+        insert_pending_referrals_visuals - Sequences the data collection and rendering in the application document
     """
 
     # Class level properties
@@ -198,15 +198,9 @@ class PendingReferralsApp:
         Collects and renders data showing the number of on hold referrals by age category.
         :param month: The month to query data in
         """
-
         self._on_hold_distribution_plot.load_clinic_data(month, self.clinic)
         self._on_hold_distribution_plot.create_plot_data()
         self._on_hold_distribution_plot.add_plot()
-
-        on_hold_referral_count = sum(self._on_hold_distribution_plot.distribution_data['referral_count'])
-
-        # Add data as Jinja2 variables to render via HTML
-        self.document.template_variables["on_hold_referral_count"] = str(on_hold_referral_count)
     # END add_on_hold_age_distribution
 
     def _update_on_hold_age_distribution(self, month: datetime) -> None:
@@ -244,15 +238,9 @@ class PendingReferralsApp:
         Collects and renders data showing the number of referrals pending reschedule by age category.
         :param month: The month to query data in
         """
-
         self._reschedule_distribution_plot.load_clinic_data(month, self.clinic)
         self._reschedule_distribution_plot.create_plot_data()
         self._reschedule_distribution_plot.add_plot()
-
-        reschedule_referral_count = sum(self._reschedule_distribution_plot.distribution_data['referral_count'])
-
-        # Add data as Jinja2 variables to render via HTML
-        self.document.template_variables["reschedule_referral_count"] = str(reschedule_referral_count)
     # END add_pending_reschedule_age_distribution
 
     def _update_pending_reschedule_age_distribution(self, month: datetime) -> None:
@@ -290,15 +278,9 @@ class PendingReferralsApp:
         Collects and renders data showing the number of referrals pending acceptance by age category.
         :param month: The month to query data in
         """
-
         self._pending_distribution_plot.load_clinic_data(month, self.clinic)
         self._pending_distribution_plot.create_plot_data()
         self._pending_distribution_plot.add_plot()
-
-        pending_referral_count = sum(self._pending_distribution_plot.distribution_data['referral_count'])
-
-        # Add data as Jinja2 variables to render via HTML
-        self.document.template_variables["acceptance_referral_count"] = str(pending_referral_count)
     # END add_pending_acceptance_age_distribution
 
     def _update_pending_acceptance_age_distribution(self, month: datetime) -> None:
@@ -336,15 +318,9 @@ class PendingReferralsApp:
         Collects and renders data showing the number of referrals in accepted status by age category.
         :param month: The month to query data in
         """
-
         self._accepted_distribution_plot.load_clinic_data(month, self.clinic)
         self._accepted_distribution_plot.create_plot_data()
         self._accepted_distribution_plot.add_plot()
-
-        accepted_referral_count = sum(self._accepted_distribution_plot.distribution_data['referral_count'])
-
-        # Add data as Jinja2 variables to render via HTML
-        self.document.template_variables["accepted_referral_count"] = str(accepted_referral_count)
     # END add_accepted_status_age_distribution
 
     def _update_accepted_status_age_distribution(self, month: datetime) -> None:
@@ -360,6 +336,7 @@ class PendingReferralsApp:
     def set_clinic(self, clinic: str) -> None:
         """Sets the currently selected clinic."""
         self.clinic = clinic
+    # END set_clinic
 
     def _clinic_selection_handler(self, attr: str, old, new) -> None:
         """
@@ -380,7 +357,7 @@ class PendingReferralsApp:
         self._update_on_hold_referral_measures(wt.last_month)
     # END clinic_selection_handler
 
-    def insert_pending_referrals_data(self) -> None:
+    def insert_pending_referrals_visuals(self) -> None:
         """
         Sequences the load of data and rendering of visuals for this Bokeh application in response
         to a new document being created for a new Bokeh session.
@@ -431,5 +408,5 @@ def pending_referrals_app_handler(doc: Document) -> None:
     :param doc: The Bokeh document to add content to
     """
     pending_app = PendingReferralsApp(doc)
-    pending_app.insert_pending_referrals_data()
+    pending_app.insert_pending_referrals_visuals()
 # END pending_referrals_app_handler
