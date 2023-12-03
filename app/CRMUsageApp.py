@@ -188,40 +188,31 @@ class CRMUsageApp:
                                                                      'numeric-data']})
     # END __init__
 
-    def _add_measures_of_dsm_imports(self, month: datetime) -> None:
-        """
-        Collects and renders data showing the rate at which direct secure
-        messages are converted to referrals.
-        :param month: The month to query data in
-        """
-        self._dsm_import_ratio_plot.load_clinic_data(month, self.clinic)
-        self._dsm_import_ratio_plot.create_plot_data()
+    def _add_plots(self) -> None:
+        """Adds plots of pending referral counts and ages to the Bokeh document."""
         self._dsm_import_ratio_plot.add_plot()
+        self._tagged_ratio_plot.add_plot()
+        self._linked_ratio_plot.add_plot()
+        self._not_accepted_status_plot.add_plot()
+    # END add_plots
 
-        if self._dsm_import_ratio_plot.ratio_data['DSM Referrals'] == 0:
-            crm_referral_ratio = 1.0
-        else:
-            crm_referral_ratio = (self._dsm_import_ratio_plot.ratio_data['Also in CRM'] /
-                                  self._dsm_import_ratio_plot.ratio_data['DSM Referrals'])
+    def _update_plots(self) -> None:
+        """Updates plots of pending referral counts and ages in the Bokeh document."""
+        self._not_accepted_status_plot.update_plot()
+        self._dsm_import_ratio_plot.update_plot()
+        self._tagged_ratio_plot.update_plot()
+        self._linked_ratio_plot.update_plot()
+    # END update_plots
 
-        # Add a point score to the import milestone test of CRM use
-        c.set_crm_usage_score_for_clinic(month, self.clinic, 'Import', crm_referral_ratio)
-
-        # Data driven labels
-        self._dsm_to_crm_referral_ratio_plot.set_label_text(str(v.half_up_int(crm_referral_ratio * 100.0)) + '%')
-        self._dsm_referral_count_plot.set_label_text(str(self._dsm_import_ratio_plot.ratio_data['DSM Referrals']))
-    # END add_measures_of_dsm_imports
-
-    def _update_measures_of_dsm_imports(self, month: datetime) -> None:
+    def _collect_dsm_import_data(self, month: datetime) -> None:
         """
-        Collects and updates data showing the rate at which direct secure
+        Collects measure data showing the rate at which direct secure
         messages are converted to referrals.  This is called to update a
         previously rendered document.
         :param month: The month to query data in
         """
         self._dsm_import_ratio_plot.load_clinic_data(month, self.clinic)
         self._dsm_import_ratio_plot.create_plot_data()
-        self._dsm_import_ratio_plot.update_plot()
 
         if self._dsm_import_ratio_plot.ratio_data['DSM Referrals'] == 0:
             crm_referral_ratio = 1.0
@@ -237,51 +228,15 @@ class CRMUsageApp:
         self._dsm_referral_count_plot.set_label_text(str(self._dsm_import_ratio_plot.ratio_data['DSM Referrals']))
     # END update_measures_of_dsm_imports
 
-    def _add_measures_of_referrals_tagged_as_seen(self, month: datetime) -> None:
+    def _collect_measures_of_referrals_tagged_as_seen(self, month: datetime) -> None:
         """
-        Collects and renders data showing the rate at which referrals are tagged
-        as seen when the patient is seen.
-        :param month: The month to query data in
-        """
-        self._tagged_ratio_plot.load_clinic_data(month, self.clinic)
-        self._tagged_ratio_plot.create_plot_data()
-        self._tagged_ratio_plot.add_plot()
-
-        if self._tagged_ratio_plot.ratio_data['All Seen'] > 0:
-            crm_seen_referral_ratio = (self._tagged_ratio_plot.ratio_data['Seen in CRM'] /
-                                       self._tagged_ratio_plot.ratio_data['All Seen'])
-        else:
-            crm_seen_referral_ratio = 0.0
-
-        # Seen referrals completed ratio
-        if self._tagged_ratio_plot.ratio_data['All Seen'] > 0:
-            seen_and_completed_ratio = (self._tagged_ratio_plot.ratio_data['Completed'] /
-                                        self._tagged_ratio_plot.ratio_data['All Seen'])
-        else:
-            seen_and_completed_ratio = 0.0
-
-        # Add a point score to the seen milestone test of CRM use
-        c.set_crm_usage_score_for_clinic(month, self.clinic, 'Seen', crm_seen_referral_ratio)
-
-        # Add a point score to the completed milestone test of CRM use
-        c.set_crm_usage_score_for_clinic(month, self.clinic, 'Completed', seen_and_completed_ratio)
-
-        # Data driven labels
-        self._crm_seen_referral_ratio_plot.set_label_text(str(v.half_up_int(crm_seen_referral_ratio * 100.0)) + '%')
-        self._seen_and_completed_ratio_plot.set_label_text(str(v.half_up_int(seen_and_completed_ratio * 100.0)) + '%')
-        self._seen_referral_count_plot.set_label_text(str(self._tagged_ratio_plot.ratio_data['All Seen']))
-    # END add_measures_of_referrals_tagged_as_seen
-
-    def _update_measures_of_referrals_tagged_as_seen(self, month: datetime) -> None:
-        """
-        Collects and updates data showing the rate at which referrals are tagged
+        Collects measure data showing the rate at which referrals are tagged
         as seen when the patient is seen.  This is called to update a
         previously rendered document.
         :param month: The month to query data in
         """
         self._tagged_ratio_plot.load_clinic_data(month, self.clinic)
         self._tagged_ratio_plot.create_plot_data()
-        self._tagged_ratio_plot.update_plot()
 
         if self._tagged_ratio_plot.ratio_data['All Seen'] > 0:
             crm_seen_referral_ratio = (self._tagged_ratio_plot.ratio_data['Seen in CRM'] /
@@ -308,40 +263,15 @@ class CRMUsageApp:
         self._seen_referral_count_plot.set_label_text(str(self._tagged_ratio_plot.ratio_data['All Seen']))
     # END update_measures_of_referrals_tagged_as_seen
 
-    def add_measures_of_linked_appointments(self, month: datetime) -> None:
+    def _collect_measures_of_linked_appointments(self, month: datetime) -> None:
         """
-        Collects and renders data showing the rate at which appointments are linked
-        to referrals when the patient is scheduled.
-        :param month: The month to query data in
-        """
-        self._linked_ratio_plot.load_clinic_data(month, self.clinic)
-        self._linked_ratio_plot.create_plot_data()
-        self._linked_ratio_plot.add_plot()
-
-        if self._linked_ratio_plot.ratio_data['Scheduled'] > 0:
-            linked_appointment_ratio = (self._linked_ratio_plot.ratio_data['Linked in CRM'] /
-                                        self._linked_ratio_plot.ratio_data['Scheduled'])
-        else:
-            linked_appointment_ratio = 0.0
-
-        # Add a point score to the linked milestone test of CRM use
-        c.set_crm_usage_score_for_clinic(month, self.clinic, 'Linked', linked_appointment_ratio)
-
-        # Data driven labels
-        self._linked_appointment_ratio_plot.set_label_text(str(v.half_up_int(linked_appointment_ratio * 100.0)) + '%')
-        self._scheduled_referral_count_plot.set_label_text(str(self._linked_ratio_plot.ratio_data['Scheduled']))
-    # END add_measures_of_linked_appointments
-
-    def update_measures_of_linked_appointments(self, month: datetime) -> None:
-        """
-        Collects and updates data showing the rate at which appointments are linked
+        Collects measure data showing the rate at which appointments are linked
         to referrals when the patient is scheduled.  This is called to update a
         previously rendered document.
         :param month: The month to query data in
         """
         self._linked_ratio_plot.load_clinic_data(month, self.clinic)
         self._linked_ratio_plot.create_plot_data()
-        self._linked_ratio_plot.update_plot()
 
         if self._linked_ratio_plot.ratio_data['Scheduled'] > 0:
             linked_appointment_ratio = (self._linked_ratio_plot.ratio_data['Linked in CRM'] /
@@ -357,43 +287,14 @@ class CRMUsageApp:
         self._scheduled_referral_count_plot.set_label_text(str(self._linked_ratio_plot.ratio_data['Scheduled']))
     # END update_measures_of_linked_appointments
 
-    def add_measures_referrals_not_accepted(self, month: datetime) -> None:
+    def _collect_referrals_not_accepted_data(self, month: datetime) -> None:
         """
-        Collects and renders data showing the rate at which referrals are accepted
-        by the clinic.
-        :param month: The month to query data in
-        """
-        self._not_accepted_status_plot.load_clinic_data(month, self.clinic)
-        self._not_accepted_status_plot.create_plot_data()
-        self._not_accepted_status_plot.add_plot()
-
-        # Accepted ratio
-        accepted_count = v.half_up_int(
-            wt.get_clinic_count_measure(month, self.clinic, 'Referrals Accepted After 90d'))
-        kept_referral_count = v.half_up_int(
-            wt.get_clinic_count_measure(month, self.clinic, 'Referrals Aged'))
-        if kept_referral_count > 0:
-            accepted_ratio = accepted_count / kept_referral_count
-        else:
-            accepted_ratio = 0.0
-
-        # Add a point score to the accept milestone test of CRM use
-        c.set_crm_usage_score_for_clinic(month, self.clinic, 'Accepted', accepted_ratio)
-
-        # Data driven labels
-        self._accepted_ratio_plot.set_label_text(str(v.half_up_int(accepted_ratio * 100.0)) + '%')
-        self._kept_referral_count_plot.set_label_text(str(kept_referral_count))
-    # END add_measures_referrals_not_accepted
-
-    def update_measures_referrals_not_accepted(self, month: datetime) -> None:
-        """
-        Collects and updates data showing the rate at which referrals are accepted
+        Collects measure data showing the rate at which referrals are accepted
         by the clinic.  This is called to update a previously rendered document.
         :param month: The month to query data in
         """
         self._not_accepted_status_plot.load_clinic_data(month, self.clinic)
         self._not_accepted_status_plot.create_plot_data()
-        self._not_accepted_status_plot.update_plot()
 
         # Accepted ratio
         accepted_count = v.half_up_int(
@@ -416,6 +317,7 @@ class CRMUsageApp:
     def set_clinic(self, clinic: str) -> None:
         """Sets the currently selected clinic."""
         self.clinic = clinic
+    # END set_clinic
 
     def _clinic_selection_handler(self, attr: str, old, new) -> None:
         """
@@ -426,10 +328,11 @@ class CRMUsageApp:
         :param new: The new clinic value after the selection changes
         """
         self.set_clinic(new)
-        self.update_measures_referrals_not_accepted(wt.last_month)
-        self.update_measures_of_linked_appointments(wt.last_month)
-        self._update_measures_of_referrals_tagged_as_seen(wt.last_month)
-        self._update_measures_of_dsm_imports(wt.last_month)
+        self._collect_referrals_not_accepted_data(wt.last_month)
+        self._collect_measures_of_linked_appointments(wt.last_month)
+        self._collect_measures_of_referrals_tagged_as_seen(wt.last_month)
+        self._collect_dsm_import_data(wt.last_month)
+        self._update_plots()
 
         # Data driven HTML table
         tests_vw = c.get_crm_usage_test_results(c.last_month, self.clinic).copy()
@@ -446,7 +349,7 @@ class CRMUsageApp:
         self._label_data_source.update_plot_data()
     # END clinic_selection_handler
 
-    def insert_crm_usage_data(self) -> None:
+    def insert_crm_usage_visuals(self) -> None:
         """
         Sequences the load of data and rendering of visuals for this Bokeh application in response
         to a new document being created for a new Bokeh session.
@@ -457,13 +360,18 @@ class CRMUsageApp:
         if len(clinic) > 0:
             self.clinic = clinic
 
-        self.add_measures_referrals_not_accepted(c.last_month)
-        self.add_measures_of_linked_appointments(c.last_month)
-        self._add_measures_of_referrals_tagged_as_seen(c.last_month)
-        self._add_measures_of_dsm_imports(c.last_month)
+        self._collect_referrals_not_accepted_data(c.last_month)
+        self._collect_measures_of_linked_appointments(c.last_month)
+        self._collect_measures_of_referrals_tagged_as_seen(c.last_month)
+        self._collect_dsm_import_data(c.last_month)
+
+        # Add plots to the Bokeh document
+        self._add_plots()
+
+        # Add a slicer for clinic names to the Bokeh document
         v.add_clinic_slicer(self.document, wt.last_month, self.clinic, self._clinic_selection_handler)
 
-        # Data driven table
+        # Data driven table of CRM test results
         tests_vw = c.get_crm_usage_test_results(c.last_month, self.clinic).copy()
         tests_vw['Result %'] = tests_vw['Result'].astype('string') + '%'
         self._crm_usage_score_table.create_plot_data(tests_vw)
@@ -510,5 +418,5 @@ def crm_usage_app_handler(doc: Document) -> None:
     """
 
     crm_use_app = CRMUsageApp(doc)
-    crm_use_app.insert_crm_usage_data()
+    crm_use_app.insert_crm_usage_visuals()
 # END crm_usage_app_handler
