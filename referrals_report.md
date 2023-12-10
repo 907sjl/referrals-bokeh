@@ -1,8 +1,8 @@
-< [Back to Bokeh example](https://907sjl.github.io/referrals-bokeh/) | [Full Report](/pdf/Referral%20Process%20Measures%20Bokeh.pdf) | [GitHub Repository](https://github.com/907sjl/referrals-bokeh) | [Portfolio](/)    
+< [Back to Bokeh example](https://907sjl.github.io/referrals-bokeh/) | [Full Report](pdf/Referral%20Process%20Measures%20Bokeh.pdf) | [GitHub Repository](https://github.com/907sjl/referrals-bokeh) | [Portfolio](/)    
 
 ## Specialty clinic process rates
 
-**Project description:** One way to measure access to care is timeliness.  Long delays to see a healthcare provider can speak to availability issues, either a lack of resources or inefficiencies that result in a less than optimal conversion of referrals into appointments. Long delays can also speak to accomodation issues or accessibility issues if patients have difficulty attending their scheduled appointments.
+**Project description:** One way to measure access to care is timeliness.  Long delays to see a healthcare provider can speak to availability issues, either a lack of resources or inefficiencies that result in a less than optimal conversion of referrals into appointments. Long delays can also speak to accommodation issues or accessibility issues if patients have difficulty attending their scheduled appointments.
 This project is an example of a report that I created to look at the process times for referred patients at specialty clinics. 
 
 The numerical values in these reports are fabricated and do not represent any real healthcare organization.  The script that created the data for this example can be found [in the create_referral_data folder](https://github.com/907sjl/referrals_powerbi/tree/main/create_referral_data).    
@@ -51,7 +51,7 @@ The process timing measures consider a referral scheduled if either the referral
 
 An additional test compares the number of patients referenced in Direct Secure Messages to those who have a referral to the clinic. Patients seen as a result of DSMs would need a referral if they are to be included in this report.  
 
-< [Back to Bokeh example](https://907sjl.github.io/referrals-bokeh/) | [Full Report](/pdf/Referral%20Process%20Measures%20Bokeh.pdf) | [GitHub Repository](https://github.com/907sjl/referrals-bokeh) | [Portfolio](/)
+< [Back to Bokeh example](https://907sjl.github.io/referrals-bokeh/) | [Full Report](pdf/Referral%20Process%20Measures%20Bokeh.pdf) | [GitHub Repository](https://github.com/907sjl/referrals-bokeh) | [Portfolio](/)
 
 <p style="font-size:11px">Page template forked from <a href="https://github.com/evanca/quick-portfolio">evanca</a></p>
 <!-- Remove above link if you don't want to attibute -->
