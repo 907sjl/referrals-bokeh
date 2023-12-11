@@ -42,5 +42,20 @@ page source. A JavaScript library programmatically renders the visuals after the
 the visuals without reloading the page when the data is changed, or in response to an interaction with the person viewing. Bokeh provides interactivity 
 through the browser.    
 
-## Overview
-Click [here](https://907sjl.github.io/referrals-bokeh/referrals_report) for an overview of the report.  The numerical values in these reports are fabricated and do not represent any real healthcare organization.  The script that created the data for this example can be found [in the create_referral_data folder](https://github.com/907sjl/referrals_powerbi/tree/main/create_referral_data).    
+## Report Overview
+Click [here](https://907sjl.github.io/referrals-bokeh/referrals_report) for an overview of the report.    
+
+## Data Sources
+The numerical values in these reports are fabricated and do not represent any real healthcare organization.  The script that created the data for this 
+example can be found [in the create_referral_data folder](https://github.com/907sjl/referrals_powerbi/tree/main/create_referral_data). This script creates two Comma Separated Values files that are the source of data for 
+this report:    
+
+- Referrals.csv
+: A file containing one row for each referral and columns with the dates when each referral reached a process milestone.    
+
+- DirectSecureMessages.csv
+: A file containing one row for each Direct Secure Message about a patient that was sent to a referral inbox. These are used to measure how often messages are used in place of referrals.     
+
+## Program Structure    
+<img src="images/package_diagram.jpg?raw=true"/>    
+
