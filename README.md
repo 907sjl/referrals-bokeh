@@ -70,26 +70,15 @@ The Python program divides application logic from data provisioning using separa
 
 * Plot
 : The Plot package contains classes that render specific types of visuals placed on the Bokeh documents.    
-    <br>*- AgeDistributionPlot.py
-    - CategoryBarsPlot.py
-    - DataLabelPlot.py
-    - DataTablePlot.py
-    - HorizontalRatioPlot.py
-    - ProcessGaugePlot.py
-    - ReferralVolumePlot.py
-    - SeenRatioPlot.py*
+    <br>*- AgeDistributionPlot.py - CategoryBarsPlot.py - DataLabelPlot.py - DataTablePlot.py - HorizontalRatioPlot.py - ProcessGaugePlot.py - ReferralVolumePlot.py - SeenRatioPlot.py*
 
 * Model
 : The Model package calculates process measures at load and contains functions that provide data for visuals.    
-    <br>*- CRMUse.py
-    - DSMUse.py
-    - PendingTime.py
-    - ProcessTime.py*
+    <br>*- CRMUse.py - DSMUse.py - PendingTime.py - ProcessTime.py*
 
 * Source
 : The Source package loads the source data when the package loads and contains functions that provide data for calculating process measures.    
-    <br>*- DSMs.py
-    - Referrals.py*
+    <br>*- DSMs.py - Referrals.py*
 
 Other assets such as HTML templates and CSS style sheets facilitate the delivery of the human interface via the Tornado web server.    
 
