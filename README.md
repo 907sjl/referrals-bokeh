@@ -59,3 +59,48 @@ this report:
 ## Program Structure    
 <img src="images/package_diagram.jpg?raw=true"/>    
 
+This example is a standalone Python application using the Bokeh library. The Bokeh library, in turn, uses the Tornado package as a lightweight HTTP 
+server to host the HTML pages that contain the Bokeh visuals.    
+
+The Python program divides application logic from data provisioning using separate internal packages.    
+
+* App
+: The App package contains classes that respond to requests for Bokeh documents, render visuals, and respond to interactive events.    
+    <br>*- ClinicProcessApp.py - common.py - CRMUsageApp.py - PendingReferralsApp.py - RoutinePerformanceApp.py - ScheduleTimesApp.py - SeenTimesApp.py - UrgentPerformanceApp.py*    
+
+* Plot
+: The Plot package contains classes that render specific types of visuals placed on the Bokeh documents.    
+    <br>*- AgeDistributionPlot.py
+    - CategoryBarsPlot.py
+    - DataLabelPlot.py
+    - DataTablePlot.py
+    - HorizontalRatioPlot.py
+    - ProcessGaugePlot.py
+    - ReferralVolumePlot.py
+    - SeenRatioPlot.py*
+
+* Model
+: The Model package calculates process measures at load and contains functions that provide data for visuals.    
+    <br>*- CRMUse.py
+    - DSMUse.py
+    - PendingTime.py
+    - ProcessTime.py*
+
+* Source
+: The Source package loads the source data when the package loads and contains functions that provide data for calculating process measures.    
+    <br>*- DSMs.py
+    - Referrals.py*
+
+Other assets such as HTML templates and CSS style sheets facilitate the delivery of the human interface via the Tornado web server.    
+
+* css
+: The css folder contains cascading style sheets used by the HTML templates.    
+<br>*- printstyles.css - printstyles_rotated.css - screenstyles.css - styles.css*
+
+* fonts
+: The fonts folder contains font definition files loaded into the HTML document with the style sheets.
+ 
+* templates
+: The templates folder contains HTML template pages for each of the Bokeh documents, and a master layout page that uses IFRAMEs to swap between documents.    
+<br>*- cover.html - crm.html - index.html - pending.html - referrals.html - routine.html - scheduled.html - seen.html - toc.html - urgent.html*    
+
