@@ -93,3 +93,13 @@ Other assets such as HTML templates and CSS style sheets facilitate the delivery
 : The templates folder contains HTML template pages for each of the Bokeh documents, and a master layout page that uses IFRAMEs to swap between documents.    
 <br>*- cover.html - crm.html - index.html - pending.html - referrals.html - routine.html - scheduled.html - seen.html - toc.html - urgent.html*    
 
+## Pandas ELT    
+
+### Data Load    
+The data load is initiated by the top-level code within the model.source package modules when they are first loaded. The referral data and calculated 
+measurement data remain resident in memory as long as the Python server program is running.    
+
+<img src="images/source.jpg?raw=true"/>    
+
+Both modules in the model.source package load source data from the CSV files, calculate simple record-level facts, and create date columns that simplify the downstream filtering 
+required to calculate measurements.    
