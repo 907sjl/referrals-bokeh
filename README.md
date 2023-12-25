@@ -103,3 +103,14 @@ measurement data remain resident in memory as long as the Python server program 
 
 Both modules in the model.source package load source data from the CSV files, calculate simple record-level facts, and create date columns that simplify the downstream filtering 
 required to calculate measurements.    
+
+### Process Measures    
+Measurements of referral processing time are calculated in the model.ProcessTime module. This module imports the modules from the model.source package that 
+provide the data that is consumed by this module in order to calculate the measurement data that is surfaced in the Bokeh applications.    
+
+<img src="images/processtime_pack.jpg?raw=true"/>    
+
+The calculations are triggered by top-level code when the module is first imported. Twelve months of measurements are calculated and stored in memory.  The 
+measurement data is accessed by the Bokeh applications via top-level variables and provider functions.    
+
+<img src="images/processtime_act.jpg?raw=true"/>    
