@@ -59,7 +59,7 @@ this report:
 ## Program Structure    
 <img src="images/package_diagram.jpg?raw=true"/>    
 
-This example is a standalone Python application using the Bokeh library. The Bokeh library, in turn, uses the Tornado package as a lightweight HTTP 
+This example is a standalone Python application using the Bokeh library. The Bokeh library, in turn, uses the Tornado library as a lightweight HTTP 
 server to host the HTML pages that contain the Bokeh visuals.    
 
 The Python program divides application logic from data provisioning using separate internal packages.    
@@ -114,3 +114,18 @@ The calculations are triggered by top-level code when the module is first import
 measurement data is accessed by the Bokeh applications via top-level variables and provider functions.    
 
 <img src="images/processtime_act.jpg?raw=true"/>    
+
+### Pending Referral Measures    
+The model.PendingTime module calculates measures describing how many referrals have been waiting to be scheduled and for how long. Referrals to be scheduled are 
+waiting in one of four queues. These referrals are either pending acceptance, on hold, pending reschedule, or sitting in an accepted status but not yet scheduled.    
+
+This module imports the modules from the model.source package that provide the data that is consumed by this module in order to calculate the measurement data that 
+is surfaced in the Bokeh applications.    
+
+<img src="images/pendingtime_pack.jpg?raw=true"/>    
+
+The calculations are triggered by top-level code when the module is first imported. All referrals that are currently pending are measured regardless of when those referrals 
+where originally sent. This surfaces information about how many referrals are currently pending but without historical tracking. The measurement data is accessed by the 
+Bokeh applications via top-level variables and provider functions.    
+
+<img src="images/pendingtime_act.jpg?raw=true"/>    
