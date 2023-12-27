@@ -118,32 +118,32 @@ measurement data is accessed by the Bokeh applications via top-level variables a
 Process measurements are stored in a Pandas DataFrame that has a granularity of one row for each clinic that is being measured. The DataFrame is created 
 by sampling the referral data to create a data set of unique clinics that have referrals.    
 ```
-    process_measures_df = pd.DataFrame({'Clinic': np.sort(referral_df['Clinic'].unique())})
-    process_measures_df = (
-        pd.concat([pd.DataFrame({'Clinic': '*ALL*'}, index=[0]), process_measures_df]).reset_index(drop=True))
+process_measures_df = pd.DataFrame({'Clinic': np.sort(referral_df['Clinic'].unique())})
+process_measures_df = (
+    pd.concat([pd.DataFrame({'Clinic': '*ALL*'}, index=[0]), process_measures_df]).reset_index(drop=True))
 ```    
 Each of these DataFrame instances holds measurement data for a single month. A top-level list provides access to the data for every month that is 
 calculated when the module loads.    
 ```
-        clinic_measures[curr_month] = curr_month_clinic_df
+clinic_measures[curr_month] = curr_month_clinic_df
 ```    
 Referral records from the model.source package are collected into calculation data sets using the first and last dates in each month, and also by 
 taking advantage of extra convenience date columns that are calculated for each referral when the data is first loaded from the source.    
 ```
-    idx = (referrals_df['Clinic'].isin(clinics_df['Clinic'])
-           & (referrals_df['Reporting Date 5 Day Lag'] >= start_date)
-           & (referrals_df['Reporting Date 5 Day Lag'] < end_date))
-    source_df = referrals_df.loc[idx].copy()
+idx = (referrals_df['Clinic'].isin(clinics_df['Clinic'])
+       & (referrals_df['Reporting Date 5 Day Lag'] >= start_date)
+       & (referrals_df['Reporting Date 5 Day Lag'] < end_date))
+source_df = referrals_df.loc[idx].copy()
 ```    
 Individual measures at the clinic level of granularity are successively calculated from these calculation data sets and merged into the master 
 data set of process measurements for the month.    
 ```
-   by_clinic_df = source_df.loc[source_df['Referral Priority'] == 'Urgent'] \
-        .groupby('Clinic') \
-        .agg(rid=pd.NamedAgg(column="Referral ID", aggfunc="count"),
-             aged=pd.NamedAgg(column="Referral Aged Yn", aggfunc="sum")) \
-        .rename(columns={'rid': prefix + 'Urgent Referrals Sent',
-                         'aged': prefix + 'Urgent Referrals Aged'})
+by_clinic_df = source_df.loc[source_df['Referral Priority'] == 'Urgent'] \
+    .groupby('Clinic') \
+    .agg(rid=pd.NamedAgg(column="Referral ID", aggfunc="count"),
+         aged=pd.NamedAgg(column="Referral Aged Yn", aggfunc="sum")) \
+    .rename(columns={'rid': prefix + 'Urgent Referrals Sent',
+                     'aged': prefix + 'Urgent Referrals Aged'})
 ```    
 
 ### Pending Referral Measures    
