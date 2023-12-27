@@ -115,6 +115,37 @@ measurement data is accessed by the Bokeh applications via top-level variables a
 
 <img src="images/processtime_act.jpg?raw=true"/>    
 
+Process measurements are stored in a Pandas DataFrame that has a granularity of one row for each clinic that is being measured. The DataFrame is created 
+by sampling the referral data to create a data set of unique clinics that have referrals.    
+```
+    process_measures_df = pd.DataFrame({'Clinic': np.sort(referral_df['Clinic'].unique())})
+    process_measures_df = (
+        pd.concat([pd.DataFrame({'Clinic': '*ALL*'}, index=[0]), process_measures_df]).reset_index(drop=True))
+```    
+Each of these DataFrame instances holds measurement data for a single month. A top-level list provides access to the data for every month that is 
+calculated when the module loads.    
+```
+        clinic_measures[curr_month] = curr_month_clinic_df
+```    
+Referral records from the model.source package are collected into calculation data sets using the first and last dates in each month, and also by 
+taking advantage of extra convenience date columns that are calculated for each referral when the data is first loaded from the source.    
+```
+    idx = (referrals_df['Clinic'].isin(clinics_df['Clinic'])
+           & (referrals_df['Reporting Date 5 Day Lag'] >= start_date)
+           & (referrals_df['Reporting Date 5 Day Lag'] < end_date))
+    source_df = referrals_df.loc[idx].copy()
+```    
+Individual measures at the clinic level of granularity are successively calculated from these calculation data sets and merged into the master 
+data set of process measurements for the month.    
+```
+   by_clinic_df = source_df.loc[source_df['Referral Priority'] == 'Urgent'] \
+        .groupby('Clinic') \
+        .agg(rid=pd.NamedAgg(column="Referral ID", aggfunc="count"),
+             aged=pd.NamedAgg(column="Referral Aged Yn", aggfunc="sum")) \
+        .rename(columns={'rid': prefix + 'Urgent Referrals Sent',
+                         'aged': prefix + 'Urgent Referrals Aged'})
+```    
+
 ### Pending Referral Measures    
 The model.PendingTime module calculates measures describing how many referrals have been waiting to be scheduled and for how long. Referrals to be scheduled are 
 waiting in one of four queues. These referrals are either pending acceptance, on hold, pending reschedule, or sitting in an accepted status but not yet scheduled.    
@@ -130,6 +161,8 @@ Bokeh applications via top-level variables and provider functions.
 
 <img src="images/pendingtime_act.jpg?raw=true"/>    
 
+The calculation of measures for pending referrals follows the same general pattern as the process measure calculations described above.    
+
 ### Measures of CRM Use    
 The model.CRMUse module calculates measures describing how often the Clinic Referral Management system was used vs. only scheduling patients in the schedule book. 
 This report compares the referral management milestones of accepting, scheduling, and seeing patients against scheduled appointments for patients at the same clinic.    
@@ -143,3 +176,21 @@ The calculations are triggered by top-level code when the module is first import
 and provider functions.    
 
 <img src="images/crmuse_act.jpg?raw=true"/>    
+
+The calculation of measures for CRM use follow the same general pattern as the process measure calculations described above.    
+
+### Measures of DSM Use    
+The model.DSMUse module calculates measures describing how many patients are discussed using Direct Secure Messaging only vs. being entered into the Clinic Referral 
+Management system as a referral.    
+
+This module imports the modules from the model.source package that provide the data that is consumed by this module in order to calculate the measurement data that 
+is surfaced in the Bokeh applications.    
+
+<img src="images/dsmuse_pack.jpg?raw=true"/>    
+
+The calculations are triggered by top-level code when the module is first imported. The measurement data is accessed by the Bokeh applications via top-level variables 
+and provider functions.    
+
+<img src="images/dsmuse_act.jpg?raw=true"/>    
+
+The calculation of measures for DSM use follows the same general pattern as the process measure calculations described above.    
