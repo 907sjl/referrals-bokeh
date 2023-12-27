@@ -129,3 +129,17 @@ where originally sent. This surfaces information about how many referrals are cu
 Bokeh applications via top-level variables and provider functions.    
 
 <img src="images/pendingtime_act.jpg?raw=true"/>    
+
+### Measures of CRM Use    
+The model.CRMUse module calculates measures describing how often the Clinic Referral Management system was used vs. only scheduling patients in the schedule book. 
+This report compares the referral management milestones of accepting, scheduling, and seeing patients against scheduled appointments for patients at the same clinic.    
+
+This module imports the modules from the model.source package that provide the data that is consumed by this module in order to calculate the measurement data that 
+is surfaced in the Bokeh applications.    
+
+<img src="images/crmuse_pack.jpg?raw=true"/>    
+
+The calculations are triggered by top-level code when the module is first imported. The measurement data is accessed by the Bokeh applications via top-level variables 
+and provider functions.    
+
+<img src="images/crmuse_act.jpg?raw=true"/>    
