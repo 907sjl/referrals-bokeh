@@ -101,8 +101,12 @@ measurement data remain resident in memory as long as the Python server program 
 
 <img src="images/source.jpg?raw=true"/>    
 
-Both modules in the model.source package load source data from the CSV files, calculate simple record-level facts, and create date columns that simplify the downstream filtering 
-required to calculate measurements.    
+Both modules in the model.source package load source data from the CSV files, calculate simple record-level facts, and create calculated date columns that simplify 
+the downstream filtering required to calculate measurements. The CSV files are loaded directly into Pandas DataFrame objects with typecasting and date parsing.    
+
+```
+return pd.read_csv('referrals.csv', dtype=column_types, parse_dates=date_columns)
+```    
 
 ### Process Measures    
 Measurements of referral processing time are calculated in the model.ProcessTime module. This module imports the modules from the model.source package that 
