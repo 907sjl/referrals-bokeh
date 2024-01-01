@@ -202,7 +202,7 @@ and provider functions.
 
 The calculation of measures for DSM use follows the same general pattern as the process measure calculations described above.    
 
-## Report Pages    
+## Application Control Layer    
 The pages in this report utilize Jinja2 templates to generate HTML for the browser that renders them. Jinja2 is a text templating library that is included and used 
 by Bokeh to embed interactive scripts. Some of the pages in this report only use Jinja2 to generate data-driven HTML content and provide no interactivity. Other pages 
 embed Bokeh scripts to render visuals and to allow the viewer to select one clinic or another.    
@@ -211,14 +211,14 @@ embed Bokeh scripts to render visuals and to allow the viewer to select one clin
 Three of the pages in this report focus on one clinic at a time and display more detailed process measures that look into processing milestones, referrals on-hold, and 
 how often the clinic makes use of the referral management system. These pages render visuals using the Bokeh library and respond to changes to the clinic selector widget.    
 
-The applications are built into Python modules and classes, one module and one class for each application. The application specific class acquires measurement data from 
+The applications are built into Python modules and classes, one module and one class for each application. The application class instance acquires measurement data from 
 the top-level variables and provider functions within the model package. Those variables persist while the Bokeh server remains running to listen for HTTP requests. Helper 
 classes within the app.plot package generate the plots that are added to the Bokeh documents by the application classes. These plot classes are instantiated within the 
 application class objects and are given specific data from the model package.    
 
 <img src="images/clinicprocessapp_pack.jpg?raw=true"/>    
 
-Bokeh uses Tornado to route requests for pages and reply with HTML content. Bokeh applications can be thought of as pages and that is a typical architecture. The app modules 
+Bokeh uses Tornado to route requests for pages and reply with HTML content. Bokeh applications can typically be thought of as pages. The app modules 
 each include an application request handler function that must be top-level in order to work with the Bokeh library. The handler function instantiates a class for 
 the application session and invokes a method that adds Bokeh plots to a Bokeh document that will be used to serve content for the application session. The document and 
 class instance is specific to the application session and persists until the Bokeh session is closed by the browser, by navigating to another application or by closing 
@@ -226,6 +226,89 @@ the tab.
 
 <img src="images/clinicprocessapp_act.jpg?raw=true"/>    
 
+The Bokeh visuals are injected into the HTML content using Jinja2 and template files. The templates are HTML files with the Jinja2 templating syntax included. The 
+instructions within the template sections are parsed by the Jinja2 library to dynamically add HTML content. The template file to use for each app is set as a class 
+level variable when the module loads.    
+
+```
+app_template = 'referrals.html'
+```    
+
+Then the template file is loaded and added to the Bokeh document.    
+
+```
+self.document.template = self._app_env.get_template(self.app_template)
+```    
+
+Plots are added to the Bokeh document by creating Bokeh figures. Figures are a canvas on which visuals are drawn. Bokeh supports using Scalable Vector Graphics to render 
+visuals. This is a must-have for documents that are intended for printing or PDF distribution. This example project is a report and is used in conjunction with another 
+Python script that automates the export of multiple pages to PDF files. Using SVG avoids the blocky, raster graphics look when the low DPI screen image is exported to 
+a high DPI output format. It also increases accessibility by allowing viewers to zoom into the page.    
+
+```
+seen_ratio_plot = figure(height=self.plot_height, width=self.plot_width, title=None, toolbar_location=None,
+                         x_range=Range1d(x_axis_start, x_axis_start + x_axis_distance),
+                         y_range=Range1d(y_axis_start, y_axis_start + y_axis_distance),
+                         output_backend="svg")
+```    
+
+The Python code that runs on the server doesn't actually draw the visuals, it creates configuration data that is streamed to the browser over a websocket.  The browser 
+renders the visuals from this configuration data within a shadow DOM using Javascript. The Javascript libraries are included as links within the Jinja2 template file.    
+
+Visuals are applied to plots as data-driven glyphs.    
+
+```
+seen_ratio_plot.annular_wedge(x=0, y=0, inner_radius=inner_radius, outer_radius=outer_radius,
+                              start_angle='starting_plot_angle', end_angle='ending_plot_angle',
+                              line_color='white', fill_color='color', source=self.plot_data_source,
+                              legend_group='measure')
+```    
+
+This example draws wedge glyphs using data from the *plot_data_source* DataFrame and the columns *starting_plot_angle* and *ending_plot_angle*. It creates one wedge for 
+every row in the source data.    
+
+The plot is named and added to the Bokeh document after all required glyphs are added. A reference pointer for the plot is added to the Jinja2 template using the 
+name given to the plot. Instructions within the template inject the visual into the HTML content so that the BokehJS library can render the visual in the browser.    
+
+```
+seen_ratio_plot.name = self.plot_name
+self.document.add_root(seen_ratio_plot)
+```    
+
 ### Jinja2 Template Pages    
 Four of the pages in this report tabulate referral process measures for all clinics. These pages have no interactivity. They render with the measurements from the most 
-recent month. These pages aren't technically using Bokeh other than to leverage the Tornado and Jinja2 libraries that come with Bokeh.    
+recent month. These pages are only using Bokeh to leverage the Tornado HTTP server and the Jinja2 text templating libraries that come with Bokeh.    
+
+These pages are still Bokeh applications with a Bokeh document. They are implemented in similar fashion to the pages that use Bokeh visuals but without using any 
+helper classes from the app.plot package. 
+
+<img src="images/urgentperformanceapp_pack.jpg?raw=true"/>    
+
+The requests and responses are also handled the same. The Tornado HTTP server calls a top-level handler function that instantiates a class for the application session 
+and calls a method that adds data into the document.    
+
+<img src="images/urgentperformanceapp_act.jpg?raw=true"/>    
+
+The data to be rendered with these simpler pages is injected into the HTML stream using Jinja2 and templates. The templates are HTML files with the Jinja2 templating 
+syntax included. The instructions within the template sections are parsed by the Jinja2 library to dynamically add HTML content. The template file to use for each app 
+is set as a class level variable when the module loads.    
+
+```
+app_template = 'urgent.html'
+```    
+
+Then the template file is loaded and added to the Bokeh document.    
+
+```
+self.document.template = self._app_env.get_template(self.app_template)
+```    
+
+Data is added to the template so that it is accessible from the template instructions that are coded into the template file.    
+
+```
+self.document.template_variables["clinics"] = self.clinics
+```    
+
+In this example the DataFrame with the measurement data for all clinics is added by reference into a template variable named *clinics*. The DataFrame is then accessible 
+within the Jinja2 template.    
+
