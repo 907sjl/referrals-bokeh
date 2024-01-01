@@ -201,3 +201,31 @@ and provider functions.
 <img src="images/dsmuse_act.jpg?raw=true"/>    
 
 The calculation of measures for DSM use follows the same general pattern as the process measure calculations described above.    
+
+## Report Pages    
+The pages in this report utilize Jinja2 templates to generate HTML for the browser that renders them. Jinja2 is a text templating library that is included and used 
+by Bokeh to embed interactive scripts. Some of the pages in this report only use Jinja2 to generate data-driven HTML content and provide no interactivity. Other pages 
+embed Bokeh scripts to render visuals and to allow the viewer to select one clinic or another.    
+
+### Bokeh Application Pages    
+Three of the pages in this report focus on one clinic at a time and display more detailed process measures that look into processing milestones, referrals on-hold, and 
+how often the clinic makes use of the referral management system. These pages render visuals using the Bokeh library and respond to changes to the clinic selector widget.    
+
+The applications are built into Python modules and classes, one module and one class for each application. The application specific class acquires measurement data from 
+the top-level variables and provider functions within the model package. Those variables persist while the Bokeh server remains running to listen for HTTP requests. Helper 
+classes within the app.plot package generate the plots that are added to the Bokeh documents by the application classes. These plot classes are instantiated within the 
+application class objects and are given specific data from the model package.    
+
+<img src="images/clinicprocessapp_pack.jpg?raw=true"/>    
+
+Bokeh uses Tornado to route requests for pages and reply with HTML content. Bokeh applications can be thought of as pages and that is a typical architecture. The app modules 
+each include an application request handler function that must be top-level in order to work with the Bokeh library. The handler function instantiates a class for 
+the application session and invokes a method that adds Bokeh plots to a Bokeh document that will be used to serve content for the application session. The document and 
+class instance is specific to the application session and persists until the Bokeh session is closed by the browser, by navigating to another application or by closing 
+the tab. 
+
+<img src="images/clinicprocessapp_act.jpg?raw=true"/>    
+
+### Jinja2 Template Pages    
+Four of the pages in this report tabulate referral process measures for all clinics. These pages have no interactivity. They render with the measurements from the most 
+recent month. These pages aren't technically using Bokeh other than to leverage the Tornado and Jinja2 libraries that come with Bokeh.    
