@@ -6,7 +6,7 @@ This project is an example of a report that I created to look at the process tim
 ## Technology Stack
 <img src="images/tech_stack.jpg?raw=true"/>    
 
-These technologies are used by application layers that manage the data model, application content and control, and data visualization.    
+These technologies are used by application layers that manage the data model, application content, and data visualization.    
 
 <img src="images/app_layers.jpg?raw=true"/>    
 
