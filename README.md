@@ -9,6 +9,8 @@ This project is an example of a report that I created to look at the process tim
 These technologies are used by application layers that manage the data model, application content, and data visualization.    
 
 ![application layers](images/app_layers.png?raw=true)
+<br>
+<img src="images/app_layers.png?raw=true" width="362" height="372"/>    
 
 ### HTML, JavaScript, and CSS    
 Three common and pervasive technologies come together to provide an analytics developer with the tools necessary to create any layout they can imagine. 
