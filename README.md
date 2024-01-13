@@ -10,7 +10,7 @@ These technologies are used by application layers that manage the data model, ap
 
 ![application layers](images/app_layers.png?raw=true)
 <br>
-<img src="images/app_layers.png?raw=true" width="362" height="372"/>    
+<img src="images/app_layers.svg?raw=true" width="362" height="372"/>    
 
 ### HTML, JavaScript, and CSS    
 Three common and pervasive technologies come together to provide an analytics developer with the tools necessary to create any layout they can imagine. 
