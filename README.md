@@ -6,6 +6,10 @@ This project is an example of a report that I created to look at the process tim
 ## Technology Stack
 <img src="images/tech_stack.jpg?raw=true"/>    
 
+These technologies are used by application layers that manage the data model, application content and control, and data visualization.    
+
+<img src="images/app_layers.jpg?raw=true"/>    
+
 ### HTML, JavaScript, and CSS    
 Three common and pervasive technologies come together to provide an analytics developer with the tools necessary to create any layout they can imagine. 
 HTML provides the scaffolding and CSS shapes and styles the layout. JavaScript allows for custom and data-driven logic to fine-tune the final product 
@@ -211,6 +215,15 @@ embed Bokeh scripts to render visuals and to allow the viewer to select one clin
 Three of the pages in this report focus on one clinic at a time and display more detailed process measures that look into processing milestones, referrals on-hold, and 
 how often the clinic makes use of the referral management system. These pages render visuals using the Bokeh library and respond to changes to the clinic selector widget.    
 
+- ClinicProcessApp.py
+: Creates content for a report page focusing on referral processing milestones and referral ages for one clinic. Responds to clinic selections.    
+
+- PendingReferralsApp.py
+: Creates content for a report page focusing on all referrals still in a pending status. Responds to clinic selections.    
+
+- CRMUsageApp.py
+: Creates content for a report page focusing on the relative use of the Clinic Referral Management system vs. the schedule book to process referrals. Responds to clinic selections.    
+
 The applications are built into Python modules and classes, one module and one class for each application. The application class instance acquires measurement data from 
 the top-level variables and provider functions within the model package. Those variables persist while the Bokeh server remains running to listen for HTTP requests. Helper 
 classes within the app.plot package generate the plots that are added to the Bokeh documents by the application classes. These plot classes are instantiated within the 
@@ -279,6 +292,18 @@ self.document.add_root(seen_ratio_plot)
 Four of the pages in this report tabulate referral process measures for all clinics. These pages have no interactivity. They render with the measurements from the most 
 recent month. These pages are only using Bokeh to leverage the Tornado HTTP server and the Jinja2 text templating libraries that come with Bokeh.    
 
+- SeenTimesApp.py
+: Creates content for a report page listing the median wait times for referrals to be seen by clinic.    
+
+- ScheduleTimesApp.py
+: Creates content for a report page listing the median wait times for referrals to be scheduled by clinic.    
+
+- UrgentPerformanceApp.py
+: Creates content for a report page listing the rate that urgent referrals are seen by the target number of days.    
+
+- RoutinePerformanceApp.py
+: Creates content for a report page listing the rate that routine referrals are seen by the target number of days.    
+
 These pages are still Bokeh applications with a Bokeh document. They are implemented in similar fashion to the pages that use Bokeh visuals but without using any 
 helper classes from the app.plot package. 
 
@@ -312,3 +337,14 @@ self.document.template_variables["clinics"] = self.clinics
 In this example the DataFrame with the measurement data for all clinics is added by reference into a template variable named *clinics*. The DataFrame is then accessible 
 within the Jinja2 template.    
 
+## HTML Layer    
+Bokeh uses Jinja2 templates to inject HTML content dynamically into an HTTP response message. A Bokeh visual is sent as configuration data that is used by the BokehJS 
+library in the client browser. BokehJS opens a websocket to the Python server app to collect data while the page renders. The BokehJS library is a Javascript library 
+that is linked within the Jinja2 template and sent as part of the HTML page. Bokeh applications can also use Jinja2 directly to either: use data on the server to 
+dynamically construct HTML structures, or inject data into the HTML content to be rendered normally by the browser.    
+
+This example project uses all of these techniques to visualize data. The HTML layer is a collection of HTML template files with embedded Jinja2 instructions. Each 
+page in the report has an individual HTML template. The templates are all similar boilerplates with different visual layouts. The templates use a collection of 
+visualization techniques to render data or allow viewers to select a clinic.    
+
+### Embedded Bokeh Visuals    
