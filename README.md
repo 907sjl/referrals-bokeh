@@ -4,11 +4,11 @@ One way to measure access to care is timeliness. Long delays to see a healthcare
 This project is an example of a report that I created to look at the process times for referred patients at specialty clinics. 
 
 ## Technology Stack
-<img src="images/tech_stack.jpg?raw=true"/>    
+![technology stack](images/tech_stack.jpg)
 
 These technologies are used by application layers that manage the data model, application content, and data visualization.    
 
-<img src="images/app_layers.jpg?raw=true"/>    
+![application layers](images/app_layers.jpg)
 
 ### HTML, JavaScript, and CSS    
 Three common and pervasive technologies come together to provide an analytics developer with the tools necessary to create any layout they can imagine. 
