@@ -61,7 +61,7 @@ this report:
 : A file containing one row for each Direct Secure Message about a patient that was sent to a referral inbox. These are used to measure how often messages are used in place of referrals.     
 
 ## Program Structure    
-<img src="images/package_diagram.jpg?raw=true"/>    
+<img src="images/package_diagram.svg?raw=true" width="811" height="541"/>    
 
 This example is a standalone Python application using the Bokeh library. The Bokeh library, in turn, uses the Tornado library as a lightweight HTTP 
 server to host the HTML pages that contain the Bokeh visuals.    
@@ -164,7 +164,7 @@ waiting in one of four queues. These referrals are either pending acceptance, on
 This module imports the modules from the model.source package that provide the data that is consumed by this module in order to calculate the measurement data that 
 is surfaced in the Bokeh applications.    
 
-<img src="images/pendingtime_pack.jpg?raw=true"/>    
+<img src="images/pendingtime_pack.jpg?raw=true" width="771" height="581"/>    
 
 The calculations are triggered by top-level code when the module is first imported. All referrals that are currently pending are measured regardless of when those referrals 
 where originally sent. This surfaces information about how many referrals are currently pending but without historical tracking. The measurement data is accessed by the 
