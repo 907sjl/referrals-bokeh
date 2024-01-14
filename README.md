@@ -61,7 +61,7 @@ this report:
 : A file containing one row for each Direct Secure Message about a patient that was sent to a referral inbox. These are used to measure how often messages are used in place of referrals.     
 
 ## Program Structure    
-<img src="images/package_diagram.svg?raw=true" width="811" height="541"/>    
+<img src="images/package_diagram.svg?raw=true"/>    
 
 This example is a standalone Python application using the Bokeh library. The Bokeh library, in turn, uses the Tornado library as a lightweight HTTP 
 server to host the HTML pages that contain the Bokeh visuals.    
