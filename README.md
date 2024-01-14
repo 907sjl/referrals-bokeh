@@ -337,14 +337,69 @@ self.document.template_variables["clinics"] = self.clinics
 In this example the DataFrame with the measurement data for all clinics is added by reference into a template variable named *clinics*. The DataFrame is then accessible 
 within the Jinja2 template.    
 
-## HTML Layer    
+## Visualization Layer    
 Bokeh uses Jinja2 templates to inject HTML content dynamically into an HTTP response message. A Bokeh visual is sent as configuration data that is used by the BokehJS 
 library in the client browser. BokehJS opens a websocket to the Python server app to collect data while the page renders. The BokehJS library is a Javascript library 
 that is linked within the Jinja2 template and sent as part of the HTML page. Bokeh applications can also use Jinja2 directly to either: use data on the server to 
 dynamically construct HTML structures, or inject data into the HTML content to be rendered normally by the browser.    
 
-This example project uses all of these techniques to visualize data. The HTML layer is a collection of HTML template files with embedded Jinja2 instructions. Each 
-page in the report has an individual HTML template. The templates are all similar boilerplates with different visual layouts. The templates use a collection of 
-visualization techniques to render data or allow viewers to select a clinic.    
+The visualization layer of this report is a collection of HTML template files with embedded Jinja2 instructions. Each page in the report has an individual HTML template. 
+The templates are all similar boilerplates with different visual layouts. The templates use the following techniques to render data or allow viewers to 
+select a clinic.    
 
 ### Embedded Bokeh Visuals    
+A template that contains a Bokeh visual will inject the visual's configuration using a Jinja2 command block and the **embed** macro.    
+```
+<div>{{ embed(roots.urgent_aim_gauge) }}</div>
+```    
+The Bokeh application handler adds content to a Document instance that is associated with the viewer's session and the application. The Document has a collection named 
+*roots* that provides access to each of the named visuals that have been added to the Document. The **embed** macro replaces the Jinja2 command block from the template 
+HTML with an HTML placeholder element that is specific to one of the visuals, *urgent_aim_gauge* in this case. This dynamically customized HTML is then sent to the 
+viewer's browser with script that renders the visual, be it a graph, table, or something else, on an HTML canvas in a shadow DOM. The rendering happens in the client 
+browser.    
+
+The data and styling for the embedded Bokeh visuals is configured programmatically in the Python server application handlers. Data is communicated with the BokehJS script 
+on the client browser over a websocket connection during rendering. Styles are passed to the script to be applied to the elements that the script creates in the HTML 
+canvas. Stylesheets cannot be used effectively with Bokeh visuals, unfortunately. The support for custom stylesheets is too limited.    
+
+### Embedded Feedback Widgets    
+Interactive widgets can be placed into application pages. They enable the viewer to pan, scroll, or zoom charts, sort tables, and other similar actions on the rendered 
+data to enhance the experience of exploring the data. There are also widgets that allow the viewer to send requests back to the application server to modify the data 
+or the configuration of the visuals in order to see something else.    
+```
+<div class="slicer-embed-block" id="clinic_slicer">{{ embed(roots.clinic_slicer) }}</div>
+```    
+This example report places a drop-down list of clinic names on three pages that focus on one clinic at a time in detail. Embedding the drop-down widget into the HTML page is 
+the same as embedding a visual by using the Jinja2 **embed** macro. The difference is that instead of adding a plot of glyphs to the document, the application handler adds 
+a Bokeh widget instance to the document.    
+```
+select = Select(value=clinic, options=wt.get_clinics(month))
+select.on_change("value", *callback)
+```    
+This example creates a Select widget instance and assigns a list of unique clinic names to the widget. A callback function is also assigned to be invoked when the selected 
+clinic name changes. The function causes the data for the selected clinic to be fetched and sent to the visuals on the page via the websocket, along with new axis 
+ranges. The widget and the callback are added by Python code in the application handler on the server. BokehJS handles the communication to invoke the callback in the 
+server application.    
+```
+select.name = 'clinic_slicer'
+doc.add_root(select)
+```    
+The Select instance is given a name. This is the name that is used to embed it into the Jinja2 template. Adding the widget to the document makes it available to the 
+template. Since the clinic drop-down list is the same in each of the application pages, it is added by a utility function **add_clinic_slicer** in the module **common.py**.    
+
+### Direct Data Injection    
+Sometimes a simpler approach will do. Summary values can be directly injected into the HTML content using Jinja2. This is suitable when there are no concerns about 
+how portable the data is and the volume of the data is exactly the same as the amount of HTML content within the page. For example, a label with a median wait time 
+across all clinics. That single number will be downloaded and displayed one way or another. As an aggregate value it may not be considered very sensitive.    
+```
+<span class="card-data-value">{{ m28_median_to_seen }}</span>
+```    
+In this example the 28-day median wait time to be seen is stored in a template variable. The template variable is directly referenced within in Jinja2 code block. This 
+results in the value of the variable being rendered as text into the HTML page content in place of the code block.    
+```
+self.document.template_variables["m28_median_to_seen"] = (
+    v.half_up_int(wt.get_overall_rate_measure(wt.last_month, 'MOV28 Median Days until Seen')))
+```    
+The application handler in **SeenTimesApp.py** adds this value to a document collection named **template_variables** and gives the value a name. This name is referenced 
+by the template to inject the value into the HTML content. In this example a specific measure value, *MOV28 Median Days until Seen*, is collected from the *model* 
+package and filtered by the utility function *half_up_int* in **common.py** before being assigned as a template variable in the document.    
