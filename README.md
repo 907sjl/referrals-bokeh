@@ -394,7 +394,8 @@ template. Since the clinic drop-down list is the same in each of the application
 ### Direct Data Injection    
 Sometimes a simpler approach will do. Summary values can be directly injected into the HTML content using Jinja2. This is suitable when there are no concerns about 
 how portable the data is and the volume of the data is exactly the same as the amount of HTML content within the page. For example, a label with a median wait time 
-across all clinics. That single number will be downloaded and displayed one way or another. As an aggregate value it may not be considered very sensitive.    
+across all clinics. That single number will be downloaded and displayed one way or another. As an aggregate value it may not be considered very sensitive. The upside 
+to this approach is that top-level style sheets can be applied to the data.    
 ```
 {% raw %}
 <span class="card-data-value">{{ m28_median_to_seen }}</span>
@@ -409,3 +410,91 @@ self.document.template_variables["m28_median_to_seen"] = (
 The application handler in **SeenTimesApp.py** adds this value to a document collection named **template_variables** and gives the value a name. This name is referenced 
 by the template to inject the value into the HTML content. In this example a specific measure value, *MOV28 Median Days until Seen*, is collected from the *model* 
 package and filtered by the utility function *half_up_int* in **common.py** before being assigned as a template variable in the document.    
+
+### Dynamically Scripted Labels    
+Directly injecting data as HTML content has a big drawback in that it isn't interactive. The page must be reloaded in order to change the displayed values. Bokeh 
+applications load once and respond to events through a websocket connection between BokehJS running on the client browser and the application server. One way to 
+address this is to use Bokeh **HTMLLabelSet** or **HTMLLabel** glyphs in a plot. Those are data-driven and can respond to events. These seem to fall short or are 
+just too difficult to manipulate when the layout and style is important. Plots have extra padding and the style sheet support in those glyphs is limited.    
+
+To get around the challenges with the Bokeh HTML labels I created the **LabelDataSource** and **CallbackLabelPlot** classes in **DataLabelPlot.py**. These 
+are plot helper classes in the app.plots package. The **LabelDataSource** class adds a plot to the document.      
+```
+def add_plot(self):
+    """Creates the figure and models that render the visual."""
+    label_plot = figure(title=None,
+                        toolbar_location=None,
+                        min_border=0,
+                        y_range=Range1d(0, 0),
+                        x_range=Range1d(0, 0),
+                        x_axis_type=None,
+                        y_axis_type=None,
+                        height=0, width=0,
+                        output_backend="svg")
+
+    label = LabelSet(x=0, y=0,
+                     source=self.plot_data_source,
+                     text='empty',
+                     visible=False)
+    label_plot.add_layout(label)
+```    
+The plot is a zero pixel figure containing the labels as rows in a data source. This plot facilitates the communication of label data to the page.    
+```
+callback = CustomJS(args=dict(source=self.plot_data_source), code=code)
+self.plot_data_source.js_on_change('data', callback)
+self.document.js_on_event('document_ready', callback)
+```    
+The plot is also assigned a custom Javascript callback that is invoked when the server changes the data or when the document is ready in the client browser. Javascript 
+callbacks execute within the client browser. This callback searches the HTML document object model for elements that contain dynamic labels. It updates the content 
+within those elements and updates the style sheet class. Updating the style sheet class dynamically can help with contextual color coding.    
+```
+label_plot.name = self.plot_name
+self.document.add_root(label_plot)
+```    
+The **LabelDataSource** plot is named and added to the Bokeh document.    
+```
+{% raw %}
+<div class="label-data-source-hidden">{{ embed(roots.label_data_source) }}</div>
+{% endraw %}
+```    
+This enables the HTML template to hide the **LabelDataSource** plot somewhere on the page.    
+```
+<span class="[*class*]" id="urgent_improvement_dir_3_month_plot">[*label*]</span>
+```    
+The HTML template page includes elements that are meant to be found by the callback script using the element id. The callback places text in place of special tokens in 
+the element's content and class name. This has a slight drawback in that the tokens are briefly flashed by the client browser before the document is ready and the 
+callback executes.    
+
+The **CallbackLabelPlot** class can be instantiated to hold a single label value and style sheet class name. It simply adds or updates these values in the data source 
+of the **LabelDataSource** instance.    
+
+There is another variant of this same approach in the **DataTablePlot.py** module. The **DataTablePlot** class dynamically renders an HTML table using Javascript. The 
+data source for the table is passed to the page in the client browser using the Bokeh websocket connection.    
+
+This approach allows the application server to change the data sources in response to events, and those changes are automatically rendered in the browser page. This 
+also allows top-level CSS style sheets to be applied to tables and labels.    
+
+### Dynamic HTML Structures    
+The last data visualization technique in this example report is to use Jinja2 to dynamically create HTML elements within the application server before sending the 
+HTML content to the client browser.    
+```
+{% raw %}
+{% for index, row in clinics.iterrows() %}
+    <tr>
+        <td class="text-data"><nobr>{{ row['Clinic'] }}</nobr></td>
+        <td class="numeric-data"><nobr>{{ row['Referrals Sent']|int }}</nobr></td>
+        <td class="percent-data"><nobr>{{ row['Pct Referrals Seen After 90d']|int }}%</nobr></td>
+        <td class="numeric-data">{{ age_category_color(row, 'MOV28 Median Days until Seen', row['Age Category to Seen']) }}</td>
+        <td>{{ direction_symbol(row, 'Var MOV91 Median Days until Seen') }}</td>
+        <td class="numeric-data">{{ '%0.2f'|format(row['Var MOV91 Median Days until Seen']|float) }}</td>
+        <td class="numeric-data">{{ age_category_color(row, 'MOV91 Median Days until Seen', row['Age Category to Seen']) }}</td>
+    </tr>
+{% endfor %}
+{% endraw %}
+```    
+Command blocks in the template instruct Jinja2 to use data from the template variables in conjunction with flow control statements to make decisions or iteratively 
+construct the HTML content. In this example the *clinics* DataFrame was passed to Jinja2 as a template variable. Jinja2 uses Python to iterate through the DataFrame 
+and create an HTML table row for every record in *clinics*.    
+
+The benefits of this approach are simplicity and the ability to apply top-level style sheets to the content. The main drawback of this approach is the lack of 
+interaction with the page that Bokeh visuals enable.    
