@@ -350,7 +350,9 @@ select a clinic.
 ### Embedded Bokeh Visuals    
 A template that contains a Bokeh visual will inject the visual's configuration using a Jinja2 command block and the **embed** macro.    
 ```
+{% raw %}
 <div>{{ embed(roots.urgent_aim_gauge) }}</div>
+{% endraw %}
 ```    
 The Bokeh application handler adds content to a Document instance that is associated with the viewer's session and the application. The Document has a collection named 
 *roots* that provides access to each of the named visuals that have been added to the Document. The **embed** macro replaces the Jinja2 command block from the template 
@@ -367,7 +369,9 @@ Interactive widgets can be placed into application pages. They enable the viewer
 data to enhance the experience of exploring the data. There are also widgets that allow the viewer to send requests back to the application server to modify the data 
 or the configuration of the visuals in order to see something else.    
 ```
+{% raw %}
 <div class="slicer-embed-block" id="clinic_slicer">{{ embed(roots.clinic_slicer) }}</div>
+{% endraw %}
 ```    
 This example report places a drop-down list of clinic names on three pages that focus on one clinic at a time in detail. Embedding the drop-down widget into the HTML page is 
 the same as embedding a visual by using the Jinja2 **embed** macro. The difference is that instead of adding a plot of glyphs to the document, the application handler adds 
@@ -392,7 +396,9 @@ Sometimes a simpler approach will do. Summary values can be directly injected in
 how portable the data is and the volume of the data is exactly the same as the amount of HTML content within the page. For example, a label with a median wait time 
 across all clinics. That single number will be downloaded and displayed one way or another. As an aggregate value it may not be considered very sensitive.    
 ```
+{% raw %}
 <span class="card-data-value">{{ m28_median_to_seen }}</span>
+{% endraw %}
 ```    
 In this example the 28-day median wait time to be seen is stored in a template variable. The template variable is directly referenced within in Jinja2 code block. This 
 results in the value of the variable being rendered as text into the HTML page content in place of the code block.    
