@@ -607,7 +607,7 @@ seen_ratio_plot = figure(height=self.plot_height, width=self.plot_width, title=N
                          output_backend="svg")
 ```    
 Scalable Vector Graphics to the rescue! Bokeh supports drawing visuals and text in SVG format instead of as a raster 
-image. SVG is actually instructions to the browser about what exactly to draw in real time when rendering the page. Browsers 
+image. SVG is actually instructions to the browser about what to draw in real time when rendering the page. Browsers 
 also support drawing SVG images at different zoom levels with the same crisp lines as the original zoom. When the page is 
 printed the SVG images will be drawn at the target DPI of the output media.    
 
@@ -615,3 +615,49 @@ Another approach used by this report is to push as much text as possible into th
 to draw text in a plot.    
 
 ### Scripted Page Output    
+A Python script creates a PDF report from this Bokeh application. This script is in the [page-capture-utility](https://github.com/907sjl/page-capture-utility) 
+repository. It is a general purpose script that loads URLs from a table of contents file and prints the page content 
+to PDF files.    
+```
+browser = await p.chromium.launch()
+
+for index, row in toc.iterrows():
+    folder_name = row['Folder']
+    file_name = row['File Name']
+    page_url = row['URL']
+    width = row['Width'] + 'in'
+    height = row['Height'] + 'in'
+```    
+The page-capture-utility script loads the table of contents into a DataFrame and iterates through the records. Each record 
+has an URL, a destination file name, and the intended width and height of the page. The script loads Chromium using the 
+Playwright library and loads each page.    
+```
+page = await browser.new_page()
+await page.emulate_media(media="print")
+await page.goto(page_url)
+await page.wait_for_timeout(5000)
+await page.pdf(width=width, height=height, print_background=True, path=target_file)
+```    
+Chromium is configured to render each page in print media mode. This causes Chromium to select the print media style sheet 
+when loading each Bokeh application page. A timeout of 5 seconds per page allows the page to load and execute the client 
+side Javascript in BokeJS and custom callbacks.    
+
+The PDF report package is a compilation of pages that focus on individual clinics. If someone where manually printing 
+these pages they must use the clinic selection drop-down widget to choose each clinic in turn. The automation 
+script needs a way to select the clinic for each page of the report.    
+```
+args = doc.session_context.request.arguments
+if 'Clinic' in args:
+    clinic = args['Clinic'][0]
+    if len(clinic) > 0:
+        clinic = clinic.decode("utf-8")
+        return clinic
+```    
+When the application handlers are invoked in response to an HTTP request they check the request arguments for the clinic 
+name. If the clinic name is sent via an HTTP argument that overrides the clinic name found in browser cookies. This 
+allows automated scripts to select the clinic as part of the URL for the page, and to iterate through clinics to 
+export a page for each one.    
+
+The page-capture-utility script creates a single PDF file for each URL. Another utility, [pdf-splicer](https://github.com/907sjl/pdf-splicer), 
+compiles the report packages from the individual PDF files using a similar approach of loading a table of 
+contents file and exporting PDF files using PyPDF2.    
