@@ -545,6 +545,9 @@ Bokeh surfaces the cookies from the HTTP request to the Python server applicatio
 Some tricks must be employed to make the HTML page output compatible with a printed page output, even if the medium is PDF. Both the browser and the PDF renderer will 
 try to fit the output to a printed page size. If the HTML output isn't already constrained to a standard page size then one of those rendering layers will make decisions 
 that may not be optimal. It is common for printed HTML pages to either overflow a page boundary or be shrunk down to an unreadable size.    
+
+Cascading Style Sheets provides a convenient method to constrain the application page content to a 
+printed page size.    
 ```
 /* landscape */
 .reportpage-rotated {
@@ -569,16 +572,19 @@ that may not be optimal. It is common for printed HTML pages to either overflow 
     break-after: avoid;
 }
 ```    
+This is opposite the usual requirement to make pages responsive to device screen 
+sizes. A style class is created to override the height and width of a DIV element and to control the 
+placement of page breaks when printing the page.    
 ```
 {% raw %}
 {% block contents %}
 <div class="reportpage-rotated">
 {% endraw %}
 ```    
-Cascading Style Sheets provides a convenient method to constrain the application page content to a 
-printed page size. This is opposite the usual requirement to make pages responsive to device screen 
-sizes. A style class is created to override the height and width of a DIV element and to control the 
-placement of page breaks when printing the page. The page content is placed within this master DIV.    
+The page content is placed within the DIV.    
+
+The browser may still need a hint about the page size and margins when printing and so a print media only 
+style sheet is linked to the page with a @page directive.    
 ```
 /* Landscape page */ 
 @page {
@@ -589,9 +595,6 @@ placement of page breaks when printing the page. The page content is placed with
     margin-right: 0.25in;
 }
 ```    
-The browser may still need a hint about the page size and margins when printing and so a print media only 
-style sheet is linked to the page with a @page directive.    
-
 The challenge with printing visuals to PDF or paper is DPI, Dots Per Inch. Graphs, images, and even text labels 
 that are rendered by Bokeh will appear blocky and blurry when printed. Content that looks fine on a screen at 96 DPI 
 will look awful at 300 DPI. Similarly, content generated at 300 DPI and displayed on a screen at 96 DPI will lose 
