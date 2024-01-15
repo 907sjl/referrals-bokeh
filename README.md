@@ -4,11 +4,11 @@ One way to measure access to care is timeliness. Long delays to see a healthcare
 This project is an example of a report that I created to look at the process times for referred patients at specialty clinics. 
 
 ## Technology Stack
-<img src="images/tech_stack.svg?raw=true" width="582" height="192" alt="technology stack"/>    
+<img src="images/tech_stack.svg?raw=true" width="582" height="192" alt="SVG image: technology stack"/>    
 
 These technologies are used by application layers that manage the data model, application content, and data visualization.    
 
-<img src="images/app_layers.svg?raw=true" width="362" height="372" alt="application layers"/>    
+<img src="images/app_layers.svg?raw=true" width="362" height="372" alt="SVG image: application layers"/>    
 
 ### HTML, JavaScript, and CSS    
 Three common and pervasive technologies come together to provide an analytics developer with the tools necessary to create any layout they can imagine. 
@@ -61,7 +61,7 @@ this report:
 : A file containing one row for each Direct Secure Message about a patient that was sent to a referral inbox. These are used to measure how often messages are used in place of referrals.     
 
 ## Program Structure    
-<img src="images/package_diagram.svg?raw=true"/>    
+<img src="images/package_diagram.svg?raw=true" alt="SVG image: package diagram"/>    
 
 This example is a standalone Python application using the Bokeh library. The Bokeh library, in turn, uses the Tornado library as a lightweight HTTP 
 server to host the HTML pages that contain the Bokeh visuals.    
@@ -103,7 +103,7 @@ Other assets such as HTML templates and CSS style sheets facilitate the delivery
 The data load is initiated by the top-level code within the model.source package modules when they are first loaded. The referral data and calculated 
 measurement data remain resident in memory as long as the Python server program is running.    
 
-<img src="images/source.jpg?raw=true"/>    
+<img src="images/source.svg?raw=true" alt="SVG image: model.source package diagram"/>    
 
 Both modules in the model.source package load source data from the CSV files. The CSV files are loaded directly into Pandas DataFrame objects with 
 typecasting and date parsing.    
@@ -119,12 +119,12 @@ the downstream filtering required to calculate measurements.
 Measurements of referral processing time are calculated in the model.ProcessTime module. This module imports the modules from the model.source package that 
 provide the data that is consumed by this module in order to calculate the measurement data that is surfaced in the Bokeh applications.    
 
-<img src="images/processtime_pack.jpg?raw=true"/>    
+<img src="images/processtime_pack.svg?raw=true" alt="SVG image: model.ProcessTime package diagram"/>    
 
 The calculations are triggered by top-level code when the module is first imported. Twelve months of measurements are calculated and stored in memory.  The 
 measurement data is accessed by the Bokeh applications via top-level variables and provider functions.    
 
-<img src="images/processtime_act.jpg?raw=true"/>    
+<img src="images/processtime_act.svg?raw=true" alt="SVG image: model.ProcessTime activity diagram"/>    
 
 Process measurements are stored in a Pandas DataFrame that has a granularity of one row for each clinic that is being measured. The DataFrame is created 
 by sampling the referral data to create a data set of unique clinics that have referrals.    
@@ -164,13 +164,13 @@ waiting in one of four queues. These referrals are either pending acceptance, on
 This module imports the modules from the model.source package that provide the data that is consumed by this module in order to calculate the measurement data that 
 is surfaced in the Bokeh applications.    
 
-<img src="images/pendingtime_pack.jpg?raw=true" width="771" height="581"/>    
+<img src="images/pendingtime_pack.svg?raw=true" alt="SVG image: model.PendingTime package diagram"/>    
 
 The calculations are triggered by top-level code when the module is first imported. All referrals that are currently pending are measured regardless of when those referrals 
 where originally sent. This surfaces information about how many referrals are currently pending but without historical tracking. The measurement data is accessed by the 
 Bokeh applications via top-level variables and provider functions.    
 
-<img src="images/pendingtime_act.jpg?raw=true"/>    
+<img src="images/pendingtime_act.svg?raw=true" alt="SVG image: model.PendingTime activity diagram"/>    
 
 The calculation of measures for pending referrals follows the same general pattern as the process measure calculations described above.    
 
@@ -181,12 +181,12 @@ This report compares the referral management milestones of accepting, scheduling
 This module imports the modules from the model.source package that provide the data that is consumed by this module in order to calculate the measurement data that 
 is surfaced in the Bokeh applications.    
 
-<img src="images/crmuse_pack.jpg?raw=true"/>    
+<img src="images/crmuse_pack.svg?raw=true" alt="SVG image: CRMUse.py package diagram"/>    
 
 The calculations are triggered by top-level code when the module is first imported. The measurement data is accessed by the Bokeh applications via top-level variables 
 and provider functions.    
 
-<img src="images/crmuse_act.jpg?raw=true"/>    
+<img src="images/crmuse_act.svg?raw=true" alt="SVG image: CRMUse.py activity diagram"/> 
 
 The calculation of measures for CRM use follow the same general pattern as the process measure calculations described above.    
 
@@ -197,12 +197,12 @@ Management system as a referral.
 This module imports the modules from the model.source package that provide the data that is consumed by this module in order to calculate the measurement data that 
 is surfaced in the Bokeh applications.    
 
-<img src="images/dsmuse_pack.jpg?raw=true"/>    
+<img src="images/dsmuse_pack.svg?raw=true" alt="SVG image: DSMUse.py package diagram"/>    
 
 The calculations are triggered by top-level code when the module is first imported. The measurement data is accessed by the Bokeh applications via top-level variables 
 and provider functions.    
 
-<img src="images/dsmuse_act.jpg?raw=true"/>    
+<img src="images/dsmuse_act.svg?raw=true" alt="SVG image: DSMUse.py activity diagram"/>    
 
 The calculation of measures for DSM use follows the same general pattern as the process measure calculations described above.    
 
@@ -229,7 +229,7 @@ the top-level variables and provider functions within the model package. Those v
 classes within the app.plot package generate the plots that are added to the Bokeh documents by the application classes. These plot classes are instantiated within the 
 application class objects and are given specific data from the model package.    
 
-<img src="images/clinicprocessapp_pack.jpg?raw=true"/>    
+<img src="images/clinicprocessapp_pack.svg?raw=true" alt="SVG image: ClinicProcessApp.py package diagram" />    
 
 Bokeh uses Tornado to route requests for pages and reply with HTML content. Bokeh applications can typically be thought of as pages. The app modules 
 each include an application request handler function that must be top-level in order to work with the Bokeh library. The handler function instantiates a class for 
@@ -237,7 +237,7 @@ the application session and invokes a method that adds Bokeh plots to a Bokeh do
 class instance is specific to the application session and persists until the Bokeh session is closed by the browser, by navigating to another application or by closing 
 the tab. 
 
-<img src="images/clinicprocessapp_act.jpg?raw=true"/>    
+<img src="images/clinicprocessapp_act.svg?raw=true" alt="SVG image: ClinicProcessApp.py package diagram" /> 
 
 The Bokeh visuals are injected into the HTML content using Jinja2 and template files. The templates are HTML files with the Jinja2 templating syntax included. The 
 instructions within the template sections are parsed by the Jinja2 library to dynamically add HTML content. The template file to use for each app is set as a class 
@@ -307,12 +307,12 @@ recent month. These pages are only using Bokeh to leverage the Tornado HTTP serv
 These pages are still Bokeh applications with a Bokeh document. They are implemented in similar fashion to the pages that use Bokeh visuals but without using any 
 helper classes from the app.plot package. 
 
-<img src="images/urgentperformanceapp_pack.jpg?raw=true"/>    
+<img src="images/urgentperformanceapp_pack.svg?raw=true" alt="SVG image: UrgentPerformanceApp.py package diagram"/>    
 
 The requests and responses are also handled the same. The Tornado HTTP server calls a top-level handler function that instantiates a class for the application session 
 and calls a method that adds data into the document.    
 
-<img src="images/urgentperformanceapp_act.jpg?raw=true"/>    
+<img src="images/urgentperformanceapp_act.svg?raw=true" alt="SVG image: UrgentPerformanceApp.py activity diagram"/>    
 
 The data to be rendered with these simpler pages is injected into the HTML stream using Jinja2 and templates. The templates are HTML files with the Jinja2 templating 
 syntax included. The instructions within the template sections are parsed by the Jinja2 library to dynamically add HTML content. The template file to use for each app 
