@@ -661,3 +661,8 @@ export a page for each one.
 The page-capture-utility script creates a single PDF file for each URL. Another utility, [pdf-splicer](https://github.com/907sjl/pdf-splicer), 
 compiles the report packages from the individual PDF files using a similar approach of loading a table of 
 contents file and exporting PDF files using PyPDF2.    
+
+< [Portfolio](https://907sjl.github.io) | [Full Report](pdf/Referral%20Process%20Measures%20Bokeh.pdf) | [GitHub Repository](https://github.com/907sjl/referrals-bokeh) | [Overview](https://907sjl.github.io/referrals-bokeh/referrals_report)    
+
+<p style="font-size:11px">Page template forked from <a href="https://github.com/evanca/quick-portfolio">evanca</a></p>
+<!-- Remove above link if you don't want to attribute -->
