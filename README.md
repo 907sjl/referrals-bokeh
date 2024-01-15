@@ -498,3 +498,117 @@ and create an HTML table row for every record in *clinics*.
 
 The benefits of this approach are simplicity and the ability to apply top-level style sheets to the content. The main drawback of this approach is the lack of 
 interaction with the page that Bokeh visuals enable.    
+
+## Report Automation    
+The intent for this project was to create a report package as a PDF document. The report delivery is automated by running the Bokeh application and exporting the pages 
+to PDF using the Playwright test harness. Playwright drives Chromium and supports pages that rely on Javascript.    
+
+### Running the Server    
+The Bokeh application server program uses a **__main__.py** module to start the server. The top-level code configures the Bokeh server with application paths and 
+handler functions then starts the server.    
+```
+apps = {'/referrals/scheduled': Application(FunctionHandler(scta.schedule_times_app_handler)),
+        '/referrals/seen': Application(FunctionHandler(sta.seen_times_app_handler)),
+        '/referrals/routine': Application(FunctionHandler(rpa.routine_performance_app_handler)),
+```    
+```
+routes = [('/referrals/cover', CoverHandler),
+          ('/', IndexHandler),
+          ('/referrals', IndexHandler),
+          (r'/referrals/css/(.*)', StaticFileHandler, {'path': os.path.normpath(os.path.dirname(__file__) + '/css')}),
+```
+```
+server = Server(apps, port=5005, extra_patterns=routes)
+server.start()
+```    
+and begins an endless polling loop to respond to HTTP requests for application pages.
+```
+server.io_loop.start()
+```    
+The server hosts a default page with links to each of the application pages. With the Bokeh server application running, open **localhost:5005** in your browser to see 
+the pages.    
+
+<img src="images/default_page.jpg?raw=true" alt="default server page"/>    
+
+The default page is an IFRAME with buttons across the top. Each button loads a different application page into the IFRAME. Three pages provide a drop-down list of 
+clinics. The selected clinic will carry across to the other pages by way of cookies stored in the browser.    
+```
+cookies = doc.session_context.request.cookies
+if 'clinic' in cookies:
+    clinic = cookies['clinic']
+    if len(clinic) > 0:
+        return clinic
+```    
+Bokeh surfaces the cookies from the HTTP request to the Python server application, allowing application state to be stored and retrieved between sessions.    
+
+### Printed Page Formatting    
+Some tricks must be employed to make the HTML page output compatible with a printed page output, even if the medium is PDF. Both the browser and the PDF renderer will 
+try to fit the output to a printed page size. If the HTML output isn't already constrained to a standard page size then one of those rendering layers will make decisions 
+that may not be optimal. It is common for printed HTML pages to either overflow a page boundary or be shrunk down to an unreadable size.    
+```
+/* landscape */
+.reportpage-rotated {
+    width: 13.5in !important;
+    height: 7.5in !important;
+    overflow: hidden;
+    background: #70BBFF;
+    display: block;
+    float: none;
+    page-break-after: always;
+    break-after: page;
+}
+/* Remove page break from last page */
+.reportpage-rotated:last-of-type {
+    width: 13.5in !important;
+    height: 7.5in !important;
+    overflow: hidden;
+    background: #70BBFF;
+    display: block;
+    float: none;
+    page-break-after: avoid;
+    break-after: avoid;
+}
+```    
+```
+{% raw %}
+{% block contents %}
+<div class="reportpage-rotated">
+{% endraw %}
+```    
+Cascading Style Sheets provides a convenient method to constrain the application page content to a 
+printed page size. This is opposite the usual requirement to make pages responsive to device screen 
+sizes. A style class is created to override the height and width of a DIV element and to control the 
+placement of page breaks when printing the page. The page content is placed within this master DIV.    
+```
+/* Landscape page */ 
+@page {
+    size: 14in 8.5in;
+    margin-top: 0.5in;
+    margin-bottom: 0.5in;
+    margin-left: 0.25in;
+    margin-right: 0.25in;
+}
+```    
+The browser may still need a hint about the page size and margins when printing and so a print media only 
+style sheet is linked to the page with a @page directive.    
+
+The challenge with printing visuals to PDF or paper is DPI, Dots Per Inch. Graphs, images, and even text labels 
+that are rendered by Bokeh will appear blocky and blurry when printed. Content that looks fine on a screen at 96 DPI 
+will look awful at 300 DPI. Similarly, content generated at 300 DPI and displayed on a screen at 96 DPI will lose 
+fidelity when it is squeezed down into a smaller space. This is also a challenge for accessibility. The same problem 
+arises trying to zoom into a 96 DPI image in the browser page.    
+```
+seen_ratio_plot = figure(height=self.plot_height, width=self.plot_width, title=None, toolbar_location=None,
+                         x_range=Range1d(x_axis_start, x_axis_start + x_axis_distance),
+                         y_range=Range1d(y_axis_start, y_axis_start + y_axis_distance),
+                         output_backend="svg")
+```    
+Scalable Vector Graphics to the rescue! Bokeh supports drawing visuals and text in SVG format instead of as a raster 
+image. SVG is actually instructions to the browser about what exactly to draw in real time when rendering the page. Browsers 
+also support drawing SVG images at different zoom levels with the same crisp lines as the original zoom. When the page is 
+printed the SVG images will be drawn at the target DPI of the output media.    
+
+Another approach used by this report is to push as much text as possible into the HTML layer instead of asking Bokeh 
+to draw text in a plot.    
+
+### Scripted Page Output    
