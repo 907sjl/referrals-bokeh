@@ -46,8 +46,67 @@ page source. A JavaScript library programmatically renders the visuals after the
 the visuals without reloading the page when the data is changed, or in response to an interaction with the person viewing. Bokeh provides interactivity 
 through the browser.    
 
-## Report Overview
-Click [here](https://907sjl.github.io/referrals-bokeh/referrals_report) for an overview of the report.    
+## Report Overview    
+In the scenario where this report is used we did not have a server environment to host this from. Customers received PDF exports of report pages. The problem with 
+sending PDF reports is the amount of valuable time spent doing so. Python and Bokeh presented a convenient way to automate the delivery of wait time and processing 
+time metrics in a PDF report.    
+
+Click [here](https://907sjl.github.io/referrals-bokeh/referrals_report) for an overview of the report.  The following sections describe the structure of the Python program and some of the techniques that I used to 
+make it work.        
+
+This report surfaces operational metrics and process timings to convert referred patients to attended appointments.  The metrics calculate the rates that a clinic 
+achieves process milestones and the number of days required.    
+
+![State chart for a referral](images/referral_states.png)    
+A referral will be in one of eight states from a process perspective. A referral is written in the Clinic Referral Management system then sent to the clinic. The 
+referral is also considered pending acceptance when it is sent. At that point the referral is either accepted, cancelled, rejected, or sometimes closed because the 
+referral must be forwarded to another organization. The clinic accepts and schedules a referred patient when the case has been reviewed. The patient is then seen and 
+the referral is completed with a visit summary.    
+
+### Volume of Referrals After 90 Days    
+![Bar chart of referral volume after 90 days](images/volume_sent_90d.jpg)    
+This horizontal bar chart represents the volume of referrals sent to a clinic alongside the number of those referrals that were canceled, rejected, or closed without 
+being seen. The referrals included in this visualization are all aged 90 days from the date they were sent to the clinic. The timing for a referral to be scheduled, 
+seen, and completed is calculated after 90 days. The volumes in this bar chart explain the population size for the median timing metrics.    
+
+### Process Rates After 90 Days    
+![Bar chart and tables of process rates after 90 days](images/process_rates_90d.jpg)    
+Referrals are aged if they are sent to a clinic and kept. Aged referrals are included in process metrics. This bar chart compares the number of referrals that have 
+reached each of the process milestones 90 days after they are sent.    
+
+### Rate Seen, Waiting, or Unmet    
+![Pie chart of referrals seen, waiting, or unmet](images/rate_seen_or_waiting.jpg)    
+After 90 days the number of referrals seen, those waiting for their appointment date, and those not yet scheduled are displayed with their relative proportions in a 
+pie chart. Any referrals not scheduled after 90 days are labeled as unmet.    
+
+### Days to Seen with Distribution    
+![Chart of days to seen with distribution bins](images/days_to_seen_distro.jpg)    
+Distribution bins group referrals by the number of days to be seen. Any referrals not yet seen will be counted in the >90d category. This visual displays the number of 
+referrals in each bin with the cumulative curve of days to see all referrals superimposed.    
+
+### Routine Referrals Seen in 30 Days    
+![Gauge of routine referrals seen in 30d vs target rate](images/routine_in_30d.jpg)    
+The percentage of referrals seen in 30 days is a patient access metric. These are the referrals that have reached 30 days of age in the selected month and were seen in 
+that time. The rate of referrals seen in 30 days is visualized with a gauge that has a setpoint for the target rate. A table to the right of the metric displays a comparison 
+of historical average rates against the target rate.    
+
+### Improvement Direction 
+![Process improvement categories](images/performance_categories.jpg)    
+Two tables provide a consolidated and concise interpretation of the referral throughput metrics over 12 months for routine referrals seen in 30 days and urgent referrals seen in five days.    
+
+There are two groups of indicators and categories.  The first group of columns compares the performance to the target rate for three time periods:
+- The current month rate over or under the target rate,
+- The aggregate three month rate over or under the target rate, 
+- The aggregate 12-month rate over or under the target rate.    
+
+Three direction indicators are grouped from left-to-right for these time periods.  The category name to the right of those indicators describes the overall 12 month performance qualitatively.    
+
+The second group of columns describe the improvement direction of each clinic across three time periods:
+- The current month rate compared to the previous month, 
+- The current month rate compared to the aggregate three month rate, 
+- The aggregate three month rate compared to the aggregate 12-month rate.    
+
+The category name to the right describes the overall 12 month improvement direction in qualitative terms.    
 
 ## Data Sources
 The numerical values in these reports are fabricated and do not represent any real healthcare organization.  The script that created the data for this 
