@@ -60,6 +60,16 @@ this report:
 - DirectSecureMessages.csv
 : A file containing one row for each Direct Secure Message about a patient that was sent to a referral inbox. These are used to measure how often messages are used in place of referrals.     
 
+The **Referrals.csv** file loads records of referrals and processing dates.   
+![Referral source file columns](images/referrals_source_columns.jpg)    
+This source file contains a horizontal list of columns representing the dates that each referral first reached processing milestones such as the date written, date sent, accepted, scheduled, and seen. 
+These dates are used by transformations to calculate process timings.    
+
+The **DirectSecureMessages.csv** file loads records of direct secure messages to clinics about patients.   
+![Direct Secure Messages source file columns](images/dsm_source_columns.jpg)    
+This source file contains a horizontal list of columns representing messages, the clinic that a message was sent to, the patient who is the subject of the message, 
+and any referrals that the patient has to that same clinic.    
+
 ## Program Structure    
 <img src="images/package_diagram.svg?raw=true" alt="SVG image: package diagram"/>    
 
